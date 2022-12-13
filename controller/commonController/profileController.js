@@ -24,8 +24,20 @@ module.exports = {
         } catch (err) {
             console.log(err);
         }
+      },
+
+      getProfile: async function (req, res) {
+        try{
+            // const {username} = req.body;
+            // const validateuser = await signupDB.findOne({ username }).lean();
+            // if(validateuser){
+            //     return errorResponse(res, 'Username Already exist')
+            // }else{
+            //     return success(res, 'Username Available')
+            // }
+        } catch (err) {
+            console.log(err);
+        }
       }
 
-
-   
 }
