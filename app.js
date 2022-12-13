@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const adminRouter = require('./routes/admin.route')
+const authRouter = require('./routes/auth.route')
 //const userRouter=require('./routes/user.route')
 var fs = require('fs');
 var path = require('path');
@@ -49,7 +49,7 @@ const port = 6000;
 
 console.log("00000");
 
-app.use('/', adminRouter);
+app.use('/', authRouter);
 //app.use('/user', userRouter);
 
 app.listen(port, () => {

@@ -1,15 +1,15 @@
 const express = require('express');
-const signDB = require('../models/signup.model.js')
-const config = require('../config/db.js')
+const signDB = require('../../models/signup.model.js')
+const config = require('../../config/db.js')
 const jwt = require('jsonwebtoken');
 const {
     success,
     successWithData,
     errorResponse,
     validationError
-} = require('../helpers/apifunctions.js')
+} = require('../../helpers/apifunctions.js')
 const fs = require('fs');
-const path = require('path');
+const path = require('path'); 
 
 module.exports = {
     signup: async function (req, res) {
@@ -22,6 +22,8 @@ module.exports = {
             if (!(email && username && password)) {
                 return validationError(res, "required all fields")
             }
+
+            
 
             const user = await signDB.create({
                 email: email,
@@ -90,4 +92,6 @@ module.exports = {
             console.log(err);
         }
     },
+
+   
 }
