@@ -28,7 +28,25 @@ const profileSchema = mongoose.Schema({
     destination_contact_number: {
         type: String
     },
-    type: {type:String}
+    role: {
+        type:String
+    },
+    gender_preferences: {
+        type:String
+    },
+    rider_preference: {
+        type:String
+    },
+    phone_code: {
+        type:String
+    },
+    phone_no: {
+        type:String
+    },
+    profile_photo: {
+        type:String
+    },
+    
 })
 
 module.exports=mongoose.model('profiles',profileSchema);

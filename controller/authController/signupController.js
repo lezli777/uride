@@ -1,5 +1,4 @@
-const express = require('express');
-const signDB = require('../../models/signup.model.js')
+const signupDB = require('../../models/signup.model.js')
 const config = require('../../config/db.js')
 const jwt = require('jsonwebtoken');
 const {
@@ -8,8 +7,7 @@ const {
     errorResponse,
     validationError
 } = require('../../helpers/apifunctions.js')
-const fs = require('fs');
-const path = require('path'); 
+
 
 module.exports = {
     signup: async function (req, res) {
@@ -22,10 +20,10 @@ module.exports = {
             if (!(email && username && password)) {
                 return validationError(res, "required all fields")
             }
+            // Validate if user exist in our database
+            //const validateuser = await adminDB.findOne({ email, username }).lean();           
 
-            
-
-            const user = await signDB.create({
+            const user = await signupDB.create({
                 email: email,
                 username: username,
                 password: password
@@ -63,7 +61,7 @@ module.exports = {
             if (!(email && password)) {
                 return validationError(res, 'Required All fields')
             } else {
-                const data = await signDB.findOne({
+                const data = await signupDB.findOne({
                     email,
                     password
                 });
@@ -92,6 +90,35 @@ module.exports = {
             console.log(err);
         }
     },
+
+    validateEmail: async function (req, res) {
+        try{
+            const {email} = req.body;
+            const validateuser = await signupDB.findOne({ email }).lean();
+            if(validateuser){
+                return errorResponse(res, 'Email Already exist')
+            }else{
+                return success(res, 'Email Available')
+            }
+        } catch (err) {
+            console.log(err);
+        }
+      },
+
+      validateUsername: async function (req, res) {
+        try{
+            const {username} = req.body;
+            const validateuser = await signupDB.findOne({ username }).lean();
+            if(validateuser){
+                return errorResponse(res, 'Username Already exist')
+            }else{
+                return success(res, 'Username Available')
+            }
+        } catch (err) {
+            console.log(err);
+        }
+      }
+
 
    
 }
