@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const authRouter = require('./routes/auth.route')
+const commonRouter = require('./routes/common.route')
 //const userRouter=require('./routes/user.route')
 var fs = require('fs');
 var path = require('path');
@@ -50,6 +51,7 @@ const port = 6000;
 console.log("00000");
 
 app.use('/', authRouter);
+app.use('/common', commonRouter);
 //app.use('/user', userRouter);
 
 app.listen(port, () => {

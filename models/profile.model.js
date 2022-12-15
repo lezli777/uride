@@ -1,4 +1,4 @@
-const { Router } = require('express');
+
 const mongoose = require('mongoose');
 const profileSchema = mongoose.Schema({
     fullname: { type: String },
@@ -16,7 +16,7 @@ const profileSchema = mongoose.Schema({
     phone_code: { type:String },
     phone_no: { type:String },
     profile_photo: { type:String },
-    
+    status:{type: Number}
 })
 
 module.exports=mongoose.model('profiles',profileSchema);
