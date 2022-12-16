@@ -6,7 +6,7 @@ const {
     successWithData,
     errorResponse,
     validationError
-} = require('../../helpers/apifunctions.js')
+} = require('../../helpers/apiResponse.js')
 
 
 module.exports = {

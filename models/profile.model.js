@@ -1,6 +1,7 @@
 
 const mongoose = require('mongoose');
 const profileSchema = mongoose.Schema({
+    profile_id : {type : mongoose.Schema.Types.ObjectId ,ref : 'signups'},
     fullname: { type: String },
     university_name: { type: String },
     student_id: { type: String },
