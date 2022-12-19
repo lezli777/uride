@@ -6,6 +6,7 @@ const vehicleInfoSchema=mongoose.Schema({
     year:{type:String},
     upload_vehicle_registration:{type:String},
     upload_inssurance_card:{type:String},
-    upload_driver_licence:{type:String}
+    upload_driver_licence:{type:String},
+    status : 1
 })
 module.exports=mongoose.model('vehicleInfos',vehicleInfoSchema);

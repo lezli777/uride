@@ -1,5 +1,6 @@
 const signupDB = require('../../models/signup.model.js')
 const config = require('../../config/db.js')
+const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
 const {
     success,
@@ -21,12 +22,15 @@ module.exports = {
                 return validationError(res, "required all fields")
             }
             // Validate if user exist in our database
-            //const validateuser = await adminDB.findOne({ email, username }).lean();           
+            //const validateuser = await adminDB.findOne({ email, username }).lean(); 
+            
+            //Encrypt user password
+            encryptedPassword = await bcrypt.hash(password, 10);
 
             const user = await signupDB.create({
                 email: email,
                 username: username,
-                password: password
+                password: encryptedPassword
             })
 
             var token = jwt.sign({
@@ -61,11 +65,11 @@ module.exports = {
             if (!(email && password)) {
                 return validationError(res, 'Required All fields')
             } else {
+                
                 const data = await signupDB.findOne({
-                    email,
-                    password
+                    email
                 });
-                if (data) {
+                if (data && (await bcrypt.compare(password, data.password))) {
                     var token = jwt.sign({
                         id: data._id
                     }, config.secert, {
@@ -78,7 +82,8 @@ module.exports = {
                         jwttoken: data.token
                     })
                     if (update) {
-                       return success(res, 'Login Successfully')
+                       //return success(res, 'Login Successfully')
+                       return successWithData(res, 'Login Successfully', data.jwttoken)
                     } else {
                         return errorResponse(res, 'Please Try Again')
                     }
