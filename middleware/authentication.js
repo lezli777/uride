@@ -1,4 +1,4 @@
-const config = require('../../uride/config/db.js')
+require('dotenv').config()
 const jwt = require('jsonwebtoken');
 
 const verifyToken = (req, res, next) => {
@@ -8,7 +8,7 @@ const verifyToken = (req, res, next) => {
     return res.status(403).send("A token is required for authentication");
   }
   try {
-    const decoded = jwt.verify(token, config.secert);
+    const decoded = jwt.verify(token, process.env.SECRET_KEY);
     console.log("decoded", decoded)
     req.user = decoded;
   } catch (err) {

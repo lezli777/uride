@@ -7,7 +7,7 @@ router.post('/validateEmail',authController.validateEmail);
 router.post('/validateUsername',authController.validateUsername);
 router.post('/verifyEmail',authController.verifyEmail);
 router.post('/checkEmailVerificationStatus',authController.checkEmailVerificationStatus);
-router.post('/sendEmails',authController.sendEmails);
 
+router.post('/signupdemo',authController.signupdemo);
 
 module.exports=router;

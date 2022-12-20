@@ -19,7 +19,7 @@
     phone_code: { type:String },
     phone_no: { type:String },
     profile_photo: { type:String },
-
+    otp: {type: Number},
     status:{type: Number},	
     email_verified: 0,
 	device_id:{type:String},

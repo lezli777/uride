@@ -93,7 +93,8 @@ module.exports = {
                 } = req.body
                 var profile_photo;
                 if(req.files.upload_profile_photo){
-                    profile_photo = req.files.upload_profile_photo[0].path
+                    console.log("req.files.upload_profile_photo[0]", req.files.upload_profile_photo[0].destination+req.files.upload_profile_photo[0].filename)
+                    profile_photo = req.files.upload_profile_photo[0].destination+req.files.upload_profile_photo[0].filename
                 }else{
                     profile_photo = '';
                 }
@@ -277,17 +278,18 @@ module.exports = {
             const profile_id = await req.user.id;
             if (profile_id) {  
                 const {
-                    type, card_no, name_on_card, expiration_date, cvv
+                    payment_type, card_no, name_on_card, expiration_date, cvv
                 } = req.body
 
-                switch(type) {
+                switch(payment_type) {
                     case 'mastercard':
-                        if (!(card_no && name_on_card && expiration_date && cvv )) {
+                        if (!(payment_type && card_no && name_on_card && expiration_date && cvv )) {
                             return errorResponse(res, 'Required All Fields')
                         } else {
                             let paymentMethod = new paymentMethodDB();
                                                   
                             paymentMethod.user_id = profile_id,
+                            paymentMethod.payment_type = payment_type,
                             paymentMethod.card_no = card_no,
                             paymentMethod.name_on_card = name_on_card,
                             paymentMethod.expiration_date = expiration_date, 
@@ -306,7 +308,28 @@ module.exports = {
                     break;
 
                     case 'visa':
-                    
+                        if (!(payment_type && card_no && name_on_card && expiration_date && cvv )) {
+                            return errorResponse(res, 'Required All Fields')
+                        } else {
+                            let paymentMethod = new paymentMethodDB();
+                                                  
+                            paymentMethod.user_id = profile_id,
+                            paymentMethod.payment_type = payment_type,
+                            paymentMethod.card_no = card_no,
+                            paymentMethod.name_on_card = name_on_card,
+                            paymentMethod.expiration_date = expiration_date, 
+                            paymentMethod.cvv = cvv,               
+                            paymentMethod.status = 1
+                                        
+                            paymentMethod.save((err, paymentmethodDoc) => {
+                                if (err) {
+                                    return errorResponse(res, 'Error')
+                                } else {
+                                    return success(res, 'Payment Method Added Successfully');
+                                }
+    
+                            });
+                        }
                     break;
 
                 }
@@ -355,6 +378,26 @@ module.exports = {
                         as: 'vehicleinfoDetails',
                     },
                 },
+
+                {
+                    $project: {
+                        'email': 1,
+                        'username' : 1,
+                        'destination_contact_number' : 1,
+                        'fullname' : 1,
+                        'gender' : 1,
+                        'mobile_no' : 1,
+                        'profile_photo' : 1,
+                        'role': 1,
+                        'student_id': 1,
+                        'university_address': 1,
+                        'university_name' : 1,
+                        'backgroundcheckDetails' : 1,
+                        'paymentmethodDetails' :1,
+                       'vehicleinfoDetails' : 1
+    
+                    }
+                }
                
             ])
             return successWithData(res, 'Details found Successfully',data);
