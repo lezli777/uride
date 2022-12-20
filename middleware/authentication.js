@@ -8,8 +8,7 @@ const verifyToken = (req, res, next) => {
     return res.status(403).send("A token is required for authentication");
   }
   try {
-    const decoded = jwt.verify(token, process.env.SECRET_KEY);
-    console.log("decoded", decoded)
+    const decoded = jwt.verify(token, process.env.SECRET_KEY);    
     req.user = decoded;
   } catch (err) {
     return res.status(401).send("Invalid  or Expired");

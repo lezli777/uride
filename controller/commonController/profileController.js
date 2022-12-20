@@ -92,8 +92,7 @@ module.exports = {
                     fullname, university_name, student_id, university_address, mobile_no, student_university_email, gender, destination_contact_number, role, gender_preferences , rider_preference, phone_code, phone_no, legal_first_name,legal_middle_name,legal_last_name,license_number,license_state,zip_code,dob,ssn, make, model, year
                 } = req.body
                 var profile_photo;
-                if(req.files.upload_profile_photo){
-                    console.log("req.files.upload_profile_photo[0]", req.files.upload_profile_photo[0].destination+req.files.upload_profile_photo[0].filename)
+                if(req.files.upload_profile_photo){                   
                     profile_photo = req.files.upload_profile_photo[0].destination+req.files.upload_profile_photo[0].filename
                 }else{
                     profile_photo = '';
@@ -108,7 +107,7 @@ module.exports = {
                             } else {
             
                                 const finded = await signupDB.findOne({ _id:profile_id }).lean();
-                                console.log("finded", finded)
+                               
                                 if (finded) {
                                     var newvalues = {
                                         $set: {
@@ -230,7 +229,7 @@ module.exports = {
                             } else {
             
                                 const finded = await signupDB.findOne({ _id:profile_id }).lean();
-                                console.log("finded", finded)
+                               
                                 if (finded) {
                                     var newvalues = {
                                         $set: {

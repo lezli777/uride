@@ -1,6 +1,6 @@
 module.exports={
-    database:'mongodb://localhost:27017/myUrideDB',
-    secert:'secret',
+    //database:'mongodb://localhost:27017/myUrideDB',
+    //secert:'secret',
     otp_length:6,
     otp_config:{
         digits:true,

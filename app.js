@@ -4,9 +4,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const authRouter = require('./routes/auth.route')
 const commonRouter = require('./routes/common.route')
-//const userRouter=require('./routes/user.route')
-var fs = require('fs');
-var path = require('path');
+
 // create express app
 const app = express();
 
@@ -15,12 +13,12 @@ app.use(express.json({ limit: '50mb' }))
     .use(express.urlencoded({ extended: true }));
 
 // Configuring the database
-const db = require('./config/db.js');
+require('dotenv').config()
 
 mongoose.Promise = global.Promise;
 
 // Connecting to the database
-mongoose.connect(db.database, {
+mongoose.connect(process.env.DATABASE_URL, {
     useNewUrlParser: true
 }).then(() => {
     console.log("Successfully connected to the database");
@@ -48,11 +46,8 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }))
 
 const port = 6000;
 
-console.log("00000");
-
 app.use('/', authRouter);
 app.use('/common', commonRouter);
-//app.use('/user', userRouter);
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}!`)
