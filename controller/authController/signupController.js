@@ -29,9 +29,9 @@ module.exports = {
             }
             // Validate if user exist in our database
             //const validateuser = await adminDB.findOne({ email, username }).lean(); 
-            
+
             //Encrypt user password
-            if(password == confirmPassword){
+            if (password == confirmPassword) {
                 encryptedPassword = await bcrypt.hash(password, 10);
 
                 const user = await signupDB.create({
@@ -39,30 +39,30 @@ module.exports = {
                     username: username,
                     password: encryptedPassword
                 })
-    
+
                 var token = jwt.sign({
-                        id: user._id
-                    },
+                    id: user._id
+                },
                     process.env.SECRET_KEY, {
-                        expiresIn: 86400
-                    }
+                    expiresIn: 86400
+                }
                 )
                 user.jwttoken = token;
                 user.status = 1;
-    
-                user.save( async(err, doc) => {
+
+                user.save(async (err, doc) => {
                     if (err) {
                         return errorResponse(res, 'Error')
                     } else {
                         return successWithData(res, 'Data Submitted Successfully', doc)
                         // const otpGenerated = generateotp();
                         // if(otpGenerated){
-    
+
                         // }
                         // if(doc){
                         //     const Apikey = 'SG.vNwQ4i-ySeuPYQRQesLB-w.14KBQjwAkyTsAAKYW_6weCwT6LJ-0LICm43Cv8Djb4w';
                         //     sgmail.setApiKey(process.env.SENDGRID_API_KEY);
-    
+
                         //     const message = {
                         //         to: 'lezli04@gmail.com',
                         //         from: 'mohit.framero@gmail.com',
@@ -73,9 +73,9 @@ module.exports = {
                         //    style="max-width: 90%; margin: auto; padding-top: 20px"
                         //   >
                         //    <h2>Welcome to MyURide</h2>
-                            
+
                         //     <p style="margin-bottom: 30px;">Please click on link to verify Email</p>
-                           
+
                         //     <p style="margin-top:50px;">If you do not request for verification please do not respond to the mail. You can in turn un subscribe to the mailing list and we will never bother you again.</p>
                         //  </div>
                         //  `
@@ -85,17 +85,17 @@ module.exports = {
                         //      if(mailSent){
                         //         return successWithData(res, 'Data Submitted Successfully', doc.jwttoken);
                         //      }
-                           
+
                         // } else {
                         //     console.log('error');
-                         
+
                         // }
                     }
                 })
-            }else{
+            } else {
                 return errorResponse(res, 'Confirm Password does not match')
             }
-           
+
 
         } catch (err) {
             console.log(err);
@@ -111,7 +111,7 @@ module.exports = {
             if (!(email && password)) {
                 return validationError(res, 'Required All fields')
             } else {
-                
+
                 const data = await signupDB.findOne({
                     email
                 });
@@ -128,8 +128,8 @@ module.exports = {
                         jwttoken: data.token
                     })
                     if (update) {
-                       //return success(res, 'Login Successfully')
-                       return successWithData(res, 'Login Successfully', data.jwttoken)
+                        //return success(res, 'Login Successfully')
+                        return successWithData(res, 'Login Successfully', data.jwttoken)
                     } else {
                         return errorResponse(res, 'Please Try Again')
                     }
@@ -143,74 +143,74 @@ module.exports = {
     },
 
     validateEmail: async function (req, res) {
-        try{
-            const {email} = req.body;
+        try {
+            const { email } = req.body;
             const validateuser = await signupDB.findOne({ email }).lean();
-            if(validateuser){
+            if (validateuser) {
                 return errorResponse(res, 'Email Already exist')
-            }else{
+            } else {
                 return success(res, 'Email Available')
             }
         } catch (err) {
             console.log(err);
         }
-      },
+    },
 
-      validateUsername: async function (req, res) {
-        try{
-            const {username} = req.body;
+    validateUsername: async function (req, res) {
+        try {
+            const { username } = req.body;
             const validateuser = await signupDB.findOne({ username }).lean();
-            if(validateuser){
+            if (validateuser) {
                 return errorResponse(res, 'Username Already Exist')
-            }else{
+            } else {
                 return success(res, 'Username Available')
             }
         } catch (err) {
             console.log(err);
         }
-      },
+    },
 
-      verifyEmail: async function (req, res) {
-        try{          
-            const validateuser = await signupDB.findOne({otp : req.query.otp , email_verified : 0}).lean();            
-            if(validateuser){
-                var newvalues={
-                    $set:{
-                        email_verified:1
+    verifyEmail: async function (req, res) {
+        try {
+            const validateuser = await signupDB.findOne({ otp: req.query.otp, email_verified: 0 }).lean();
+            if (validateuser) {
+                var newvalues = {
+                    $set: {
+                        email_verified: 1
                     }
                 }
-                signupDB.updateOne({_id:validateuser._id},newvalues,(err,doc)=>{
-                    if(err){
-                        return errorResponse(res,'Email Not Activated')
-                    }else{
-                        return successWithData(res,'Email Activated',validateuser.jwttoken);
-                       //res.send("<html> <head>server Response</head><body><h1> Success</p></h1></body></html>");
+                signupDB.updateOne({ _id: validateuser._id }, newvalues, (err, doc) => {
+                    if (err) {
+                        return errorResponse(res, 'Email Not Activated')
+                    } else {
+                        return successWithData(res, 'Email Activated', validateuser.jwttoken);
+                        //res.send("<html> <head>server Response</head><body><h1> Success</p></h1></body></html>");
                     }
 
                 });
                 //return successWithData(res, 'Email Verified', validateuser.jwttoken)               
-            }else{
+            } else {
                 return errorResponse(res, 'Expired or Invalid')
             }
         } catch (err) {
             console.log(err);
         }
-      },
+    },
 
-      checkEmailVerificationStatus: async function (req, res) {
-        try{         
-            const verifyuser = await signupDB.findOne({email :req.body.email , email_verified : 1}).lean();           
-            if(verifyuser){
-                 return success(res, "Email Verified")         
-            }else{
+    checkEmailVerificationStatus: async function (req, res) {
+        try {
+            const verifyuser = await signupDB.findOne({ email: req.body.email, email_verified: 1 }).lean();
+            if (verifyuser) {
+                return success(res, "Email Verified")
+            } else {
                 return errorResponse(res, 'Email not Verified')
             }
         } catch (err) {
             console.log(err);
         }
-      },
+    },
 
-      signupdemo: async function (req, res) {
+    signupdemo: async function (req, res) {
         try {
             const {
                 email,
@@ -223,9 +223,9 @@ module.exports = {
             }
             // Validate if user exist in our database
             //const validateuser = await adminDB.findOne({ email, username }).lean(); 
-            
+
             //Encrypt user password
-            if(password == confirmPassword){
+            if (password == confirmPassword) {
                 encryptedPassword = await bcrypt.hash(password, 10);
 
                 const user = await signupDB.create({
@@ -234,29 +234,29 @@ module.exports = {
                     password: encryptedPassword
                 })
 
-                const otpGenerated = generateotp();                
-    
+                const otpGenerated = generateotp();
+
                 var token = jwt.sign({
-                        id: user._id
-                    },
+                    id: user._id
+                },
                     process.env.SECRET_KEY, {
-                        expiresIn: 86400
-                    }
+                    expiresIn: 86400
+                }
                 )
                 user.jwttoken = token;
                 user.status = 1;
                 user.otp = otpGenerated;
-                user.save( async(err, doc) => {
+                user.save(async (err, doc) => {
                     if (err) {
                         return errorResponse(res, 'Error')
                     } else {
                         //return successWithData(res, 'Data Submitted Successfully', doc)
-                        
-                     
-                        if(doc){
+
+
+                        if (doc) {
                             //const Apikey = 'SG.vNwQ4i-ySeuPYQRQesLB-w.14KBQjwAkyTsAAKYW_6weCwT6LJ-0LICm43Cv8Djb4w';
                             sgmail.setApiKey(process.env.SENDGRID_API_KEY);
-    
+
                             const message = {
                                 to: 'lezli04@gmail.com',
                                 from: 'mohit.framero@gmail.com',
@@ -275,30 +275,30 @@ module.exports = {
                          `
                             }
                             const mailSent = await sgmail.send(message)
-                             console.log('email sent', mailSent);
-                             if(mailSent){
+                            console.log('email sent', mailSent);
+                            if (mailSent) {
                                 return successWithData(res, 'Data Submitted Successfully', doc.jwttoken);
-                             }
-                           
+                            }
+
                         } else {
                             console.log('error');
-                         
+
                         }
                     }
                 })
-            }else{
+            } else {
                 return errorResponse(res, 'Confirm Password does not match')
             }
-           
+
 
         } catch (err) {
             console.log(err);
         }
     },
 
-  
-     
 
 
-   
+
+
+
 }
