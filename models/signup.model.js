@@ -9,9 +9,9 @@
     student_id: { type: String },
     university_address: { type: String },
     mobile_no: { type: String },
-    student_university_email: { type: String },
+    //student_university_email: { type: String },
     gender: { type: String },
-    payment_method: { type: String },
+    //payment_method: { type: String },
     destination_contact_number: { type: String },
     role: { type:String },
     gender_preferences: { type:String },
@@ -19,7 +19,7 @@
     phone_code: { type:String },
     phone_no: { type:String },
     profile_photo: { type:String },
-    
+
     status:{type: Number},	
     email_verified: 0,
 	device_id:{type:String},

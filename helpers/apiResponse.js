@@ -2,6 +2,7 @@ exports.success=(res,message)=>{
     const resdata=
     {
         code:200,
+        status: true,
         message,
   }
    return res.json(resdata)
@@ -10,6 +11,7 @@ exports.success=(res,message)=>{
 exports.successWithData=(res,message,data)=>{
     const resdata={
         code:200,
+        status: true,
         message,
         data
     }
@@ -19,6 +21,7 @@ exports.successWithData=(res,message,data)=>{
 exports.errorResponse=(res,message)=>{
     const resdata={
         code:400,
+        status: false,
         message
     }
     return res.json(resdata);
@@ -27,6 +30,7 @@ exports.errorResponse=(res,message)=>{
 exports.validationError=(res,message)=>{
     const resdata={
         code:400,
+        status: false,
         message
 }
 return res.json(resdata)
