@@ -183,9 +183,9 @@ module.exports = {
                                                                                             vehicleInfo.make = make,
                                                                                             vehicleInfo.model = model,
                                                                                             vehicleInfo.year = year,
-                                                                                            vehicleInfo.upload_vehicle_registration = req.files.upload_vehicle_registration[0].path,
-                                                                                            vehicleInfo.upload_inssurance_card = req.files.upload_inssurance_card[0].path,
-                                                                                            vehicleInfo.upload_driver_licence = req.files.upload_driver_licence[0].path,
+                                                                                            vehicleInfo.upload_vehicle_registration = req.files.upload_vehicle_registration[0].destination + req.files.upload_vehicle_registration[0].filename,
+                                                                                            vehicleInfo.upload_inssurance_card = req.files.upload_inssurance_card[0].destination + req.files.upload_inssurance_card[0].filename,
+                                                                                            vehicleInfo.upload_driver_licence = req.files.upload_driver_licence[0].destination + req.files.upload_driver_licence[0].filename,
                                                                                             vehicleInfo.status = 1
 
 
