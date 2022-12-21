@@ -39,6 +39,7 @@ module.exports = {
                     username: username,
                     password: encryptedPassword
                 })
+                const otpGenerated = generateotp();              
 
                 var token = jwt.sign({
                     id: user._id
@@ -49,12 +50,12 @@ module.exports = {
                 )
                 user.jwttoken = token;
                 user.status = 1;
-
+                user.otp = otpGenerated;
                 user.save(async (err, doc) => {
                     if (err) {
                         return errorResponse(res, 'Error')
                     } else {
-                        return successWithData(res, 'Data Submitted Successfully', doc)
+                        return successWithData(res, 'Data Submitted Successfully', doc.jwttoken)
                         // const otpGenerated = generateotp();
                         // if(otpGenerated){
 
