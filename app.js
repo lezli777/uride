@@ -46,8 +46,8 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }))
 
 const port = 3000;
 
-app.use('/', authRouter);
-app.use('/common', commonRouter);
+app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/common', commonRouter);
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}!`)
