@@ -44,7 +44,7 @@ app.use(express.json()) //handling the form data
 app.use(express.json({ limit: '50mb' }))
 app.use(express.urlencoded({ limit: '50mb', extended: true }))
 
-const port = 6000;
+const port = 3000;
 
 app.use('/', authRouter);
 app.use('/common', commonRouter);
