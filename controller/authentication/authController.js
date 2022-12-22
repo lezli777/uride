@@ -11,9 +11,8 @@ const { generateotp } = require('../../services/otp.js');
 const sgmail = require('@sendgrid/mail');
 sgmail.setApiKey('SG.vNwQ4i-ySeuPYQRQesLB-w.14KBQjwAkyTsAAKYW_6weCwT6LJ-0LICm43Cv8Djb4w');
 const fs = require('fs');
-require('dotenv').config()
-
-
+require('dotenv').config();
+var passwordValidator = require('password-validator');
 
 module.exports = {
     signup: async function (req, res) {
@@ -27,11 +26,39 @@ module.exports = {
             if (!(email && username && password && confirmPassword)) {
                 return validationError(res, "required all fields")
             }
-            // Validate if user exist in our database
-            //const validateuser = await adminDB.findOne({ email, username }).lean(); 
+
+            const validateemail = await signupDB.findOne({ email }).lean();
+            if (validateemail) {
+                return errorResponse(res, 'Email Already exist')
+            } 
+
+            const validateuser = await signupDB.findOne({ username }).lean();
+            if (validateuser) {
+                return errorResponse(res, 'Username Already Exist')
+            }
+
+            // Create a schema
+            var schema = new passwordValidator();
+
+            // Adding properties to it
+            schema
+            .is().min(8)                                    // Minimum length 8
+            .is().max(25)                                   // Maximum length 25
+            .has().uppercase()                              // Must have uppercase letters
+            .has().lowercase()                              // Must have lowercase letters
+            .has().digits(2)                                // Must have at least 2 digits
+            .has().not().spaces()                           // Should not have spaces
+            .is().not().oneOf(['Passw0rd', 'Password123']); // Blacklist these values
+
+            
+            const validatePassword = await schema.validate(password);
+            console.log("validatePassword",validatePassword);
+            if (validatePassword == false) {
+                return errorResponse(res, 'Password must have min 8 length, max 25 length, uppercase letters, lowercase letters, at least 2 digits with no spaces ')
+            }
 
             //Encrypt user password
-            if (password == confirmPassword) {
+            if (validatePassword == true && password == confirmPassword) {
                 encryptedPassword = await bcrypt.hash(password, 10);
 
                 const user = await signupDB.create({

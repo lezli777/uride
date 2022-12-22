@@ -6,5 +6,5 @@ router.post('/createProfile', commonController.verifyToken, commonController.upl
 router.post('/createPaymentMethod', commonController.verifyToken, commonController.savePaymentMethod);
 
 router.get('/getProfile', commonController.verifyToken, commonController.getUserProfileData);
-
+router.post('/createTrip', commonController.verifyToken, commonController.createTrip);
 module.exports = router;

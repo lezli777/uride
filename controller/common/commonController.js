@@ -2,6 +2,7 @@ const signupDB = require('../../models/signup.model.js')
 const backgroudCheckDB = require('../../models/background.model.js')
 const vehicleInfosDB = require('../../models/vehicleInfo.model.js');
 const paymentMethodDB = require('../../models/paymentMethod.model');
+const tripDB = require('../../models/usersTrip.model');
 const verifyToken = require("../../middleware/authentication.js");
 const {
     success,
@@ -402,6 +403,87 @@ module.exports = {
         } catch (err) {
             console.log(err);
         }
+    },
+
+    createTrip: async function (req, res) {
+        try {
+            const profile_id = await req.user.id;
+            if (profile_id) {
+               
+                const {
+                    pickup_location, pickup_lat, pickup_long,
+                    destination_location, destination_lat, destination_long, 
+                    trip, depart_date, depart_time, return_date, 
+                    return_time, amount, payment, request_expiration, 
+                    number_of_riders, number_of_bags, special_request
+                } = req.body
+
+                const findRole = signupDB.findOne({_id: profile_id}).lean();
+                console.log("role", findRole);
+
+                // if((trip == 'one') && (trip == 'one') && !( pickup_location, pickup_lat, pickup_long,
+                //     destination_location, destination_lat, destination_long, 
+                //     trip, depart_date, depart_time, amount, payment, request_expiration, 
+                //     number_of_riders, number_of_bags, special_request)){
+
+                // }else if((trip == 'rounded') && !( pickup_location, pickup_lat, pickup_long,
+                //     destination_location, destination_lat, destination_long, 
+                //     trip, depart_date, depart_time, return_date, 
+                //     return_time, amount, payment, request_expiration, 
+                //     number_of_riders, number_of_bags, special_request)){
+
+                // }else{
+
+                // }
+
+                // var returnDate;
+                // var returnTime;
+                // if(trip == 'one'){
+                //     returnDate = 'NA';
+                //     returnTime = 'NA';
+                // }else{
+                //     returnDate = return_date;
+                //     returnTime = return_time;
+                // }
+
+                // if(returnDate && returnTime){
+                //     let userTrip = new tripDB();
+
+                //     userTrip.user_id = profile_id,
+                //     userTrip.pickup_location = pickup_location;
+                //     userTrip.pickup_lat = pickup_lat;
+                //     userTrip.pickup_long = pickup_long;
+                //     userTrip.destination_location = destination_location;
+                //     userTrip.destination_lat = destination_lat;
+                //     userTrip.destination_long = destination_long;
+                //     userTrip.trip = trip;
+                //     userTrip.depart_date = depart_date;
+                //     userTrip.depart_time = depart_time;
+                //     userTrip.return_date = returnDate;
+                //     userTrip.return_time = returnTime;
+                //     userTrip.amount = amount;
+                //     userTrip.payment = payment;
+                //     userTrip.request_expiration = request_expiration;
+                //     userTrip.number_of_riders = number_of_riders;
+                //     userTrip.number_of_bags = number_of_bags;
+                //     userTrip.special_request = special_request;                       
+                //     userTrip.status = 1;
+
+                //     userTrip.save((err, tripDoc) => {
+                //     if (err) {
+                //         return errorResponse(res, 'Error')
+                //     } else {
+                //         return success(res, 'Trip Added Successfully');
+                //     }
+
+                // });
+                //}
+                
+            }
+        } catch (err) {
+            console.log(err);
+        }
     }
+
 
 }
