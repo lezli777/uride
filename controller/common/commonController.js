@@ -409,75 +409,142 @@ module.exports = {
         try {
             const profile_id = await req.user.id;
             if (profile_id) {
-               
+               console.log(profile_id)
                 const {
-                    pickup_location, pickup_lat, pickup_long,
+                    role,pickup_location, pickup_lat, pickup_long,
                     destination_location, destination_lat, destination_long, 
                     trip, depart_date, depart_time, return_date, 
                     return_time, amount, payment, request_expiration, 
                     number_of_riders, number_of_bags, special_request
                 } = req.body
+                
+                const finded = await signupDB.findOne({ _id: profile_id }).lean();
+                if(finded){
+                    switch(role){
+                        case 'driver':                           
+                            if(trip == 'oneway' && !( pickup_location, pickup_lat, pickup_long,
+                                destination_location, destination_lat, destination_long, 
+                                trip, depart_date, depart_time, amount, payment, 
+                                number_of_riders, number_of_bags, special_request)){
+                                    return errorResponse(res, 'Required All Fields')
+                            }else if(trip == 'rounded' && !( pickup_location, pickup_lat, 
+                                pickup_long,destination_location, destination_lat, 
+                                destination_long,trip, depart_date, depart_time,
+                                return_date, return_time, amount, payment, 
+                                number_of_riders, number_of_bags, special_request)){
+                                    return errorResponse(res, 'Required All Fields')
+                            }else{
+                                
+                                    var returnDate;
+                                    var returnTime;
+                                    if(trip == 'oneway'){
+                                        returnDate = 'NA';
+                                        returnTime = 'NA';
+                                    }else{
+                                        returnDate = return_date;
+                                        returnTime = return_time;
+                                    }
 
-                const findRole = signupDB.findOne({_id: profile_id}).lean();
-                console.log("role", findRole);
+                                    if(returnDate && returnTime){
+                                        let userTrip = new tripDB();
 
-                // if((trip == 'one') && (trip == 'one') && !( pickup_location, pickup_lat, pickup_long,
-                //     destination_location, destination_lat, destination_long, 
-                //     trip, depart_date, depart_time, amount, payment, request_expiration, 
-                //     number_of_riders, number_of_bags, special_request)){
+                                        userTrip.user_id = profile_id,
+                                        userTrip.role = role,
+                                        userTrip.pickup_location = pickup_location;
+                                        userTrip.pickup_lat = pickup_lat;
+                                        userTrip.pickup_long = pickup_long;
+                                        userTrip.destination_location = destination_location;
+                                        userTrip.destination_lat = destination_lat;
+                                        userTrip.destination_long = destination_long;
+                                        userTrip.trip = trip;
+                                        userTrip.depart_date = depart_date;
+                                        userTrip.depart_time = depart_time;
+                                        userTrip.return_date = returnDate;
+                                        userTrip.return_time = returnTime;
+                                        userTrip.amount = amount;
+                                        userTrip.payment = payment;
+                                        userTrip.request_expiration = request_expiration;
+                                        userTrip.number_of_riders = number_of_riders;
+                                        userTrip.number_of_bags = number_of_bags;
+                                        userTrip.special_request = special_request;                       
+                                        userTrip.status = 1;
 
-                // }else if((trip == 'rounded') && !( pickup_location, pickup_lat, pickup_long,
-                //     destination_location, destination_lat, destination_long, 
-                //     trip, depart_date, depart_time, return_date, 
-                //     return_time, amount, payment, request_expiration, 
-                //     number_of_riders, number_of_bags, special_request)){
+                                        userTrip.save((err, tripDoc) => {
+                                        if (err) {
+                                            return errorResponse(res, 'Issue while submitting data')
+                                        } else {
+                                            return success(res, 'Trip Added Successfully');
+                                        }
 
-                // }else{
+                                    });
+                                    }
+                            }                           
+                        break;
 
-                // }
+                        case 'rider':
+                            if(trip == 'oneway' && !( pickup_location, pickup_lat, pickup_long,
+                                destination_location, destination_lat, destination_long, 
+                                trip, depart_date, depart_time, request_expiration,amount, payment, 
+                                number_of_riders, number_of_bags, special_request)){
+                                    return errorResponse(res, 'Required All Fields')
+                            }else if(trip == 'rounded' && !( pickup_location, pickup_lat, 
+                                pickup_long,destination_location, destination_lat, 
+                                destination_long,trip, depart_date, depart_time,
+                                return_date, return_time,request_expiration, amount, payment, 
+                                number_of_riders, number_of_bags, special_request)){
+                                    return errorResponse(res, 'Required All Fields')
+                            }else{
+                                
+                                    var returnDate;
+                                    var returnTime;
+                                    if(trip == 'oneway'){
+                                        returnDate = 'NA';
+                                        returnTime = 'NA';
+                                    }else{
+                                        returnDate = return_date;
+                                        returnTime = return_time;
+                                    }
 
-                // var returnDate;
-                // var returnTime;
-                // if(trip == 'one'){
-                //     returnDate = 'NA';
-                //     returnTime = 'NA';
-                // }else{
-                //     returnDate = return_date;
-                //     returnTime = return_time;
-                // }
+                                    if(returnDate && returnTime){
+                                        let userTrip = new tripDB();
 
-                // if(returnDate && returnTime){
-                //     let userTrip = new tripDB();
+                                        userTrip.user_id = profile_id,
+                                        userTrip.role = role,
+                                        userTrip.pickup_location = pickup_location;
+                                        userTrip.pickup_lat = pickup_lat;
+                                        userTrip.pickup_long = pickup_long;
+                                        userTrip.destination_location = destination_location;
+                                        userTrip.destination_lat = destination_lat;
+                                        userTrip.destination_long = destination_long;
+                                        userTrip.trip = trip;
+                                        userTrip.depart_date = depart_date;
+                                        userTrip.depart_time = depart_time;
+                                        userTrip.return_date = returnDate;
+                                        userTrip.return_time = returnTime;
+                                        userTrip.amount = amount;
+                                        userTrip.payment = payment;
+                                        userTrip.request_expiration = request_expiration;
+                                        userTrip.number_of_riders = number_of_riders;
+                                        userTrip.number_of_bags = number_of_bags;
+                                        userTrip.special_request = special_request;                       
+                                        userTrip.status = 1;
 
-                //     userTrip.user_id = profile_id,
-                //     userTrip.pickup_location = pickup_location;
-                //     userTrip.pickup_lat = pickup_lat;
-                //     userTrip.pickup_long = pickup_long;
-                //     userTrip.destination_location = destination_location;
-                //     userTrip.destination_lat = destination_lat;
-                //     userTrip.destination_long = destination_long;
-                //     userTrip.trip = trip;
-                //     userTrip.depart_date = depart_date;
-                //     userTrip.depart_time = depart_time;
-                //     userTrip.return_date = returnDate;
-                //     userTrip.return_time = returnTime;
-                //     userTrip.amount = amount;
-                //     userTrip.payment = payment;
-                //     userTrip.request_expiration = request_expiration;
-                //     userTrip.number_of_riders = number_of_riders;
-                //     userTrip.number_of_bags = number_of_bags;
-                //     userTrip.special_request = special_request;                       
-                //     userTrip.status = 1;
+                                        userTrip.save((err, tripDoc) => {
+                                        if (err) {
+                                            return errorResponse(res, 'Issue while submitting data')
+                                        } else {
+                                            return success(res, 'Trip Added Successfully');
+                                        }
 
-                //     userTrip.save((err, tripDoc) => {
-                //     if (err) {
-                //         return errorResponse(res, 'Error')
-                //     } else {
-                //         return success(res, 'Trip Added Successfully');
-                //     }
-
-                // });
-                //}
+                                    });
+                                    }
+                            } 
+                        break;
+                    }
+                    
+                }else{
+                    return errorResponse(res, 'User is not active')
+                }
                 
             }
         } catch (err) {

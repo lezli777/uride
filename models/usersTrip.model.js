@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const usersTripSchema = mongoose.Schema({
     user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'signups' },
+    role:{type : String},
     pickup_location: { type: String },
     pickup_lat: { type: String },
     pickup_long: { type: String },
@@ -14,7 +15,7 @@ const usersTripSchema = mongoose.Schema({
     return_time: { type: String },
     amount: { type: String },
     payment: { type: String },
-    request_expiration: { type: String },
+    request_expiration: { type: String  },
     number_of_riders: { type: Number },  // seat_available for driver side
     number_of_bags: { type: Number },    // bag_allowed for driver side
     special_request: { type: String },

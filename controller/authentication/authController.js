@@ -235,7 +235,7 @@ module.exports = {
             }
         } catch (err) {
             console.log(err);
-        }
+        }    
     },
 
     signupdemo: async function (req, res) {
