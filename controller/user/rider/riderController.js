@@ -5,6 +5,7 @@
  const tripDB = require('../../../models/usersTrip.model.js');
  const tripOfferDB = require('../../../models/tripOffer.model.js');
  const profileDB = require('../../../models/profile.model.js');
+ const riderRatingDB = require('../../../models/riderRating.model.js');
 // const roleDB = require('../../models/memberRole.model.js');
 const verifyToken = require("../../../middleware/authentication.js");
 const {
@@ -350,7 +351,15 @@ module.exports = {
                                                 if (err) {
                                                     return errorResponse(res, 'Error')
                                                 } else {
-                                                    return success(res,"Offer successfully sent")
+                                                    tripDB.findByIdAndUpdate({_id : rider_trip_id},{status: 1}, (err,updateRiderStatus)=>{
+                                                        console.log("updateRiderStatus", updateRiderStatus)
+                                                        if(err){
+                                                            return errorResponse(res,"network error")
+                                                        }else{ 
+                                                            return success(res,"Offer successfully sent")
+                                                        }
+                                                     });
+                                                    
                                                 }
                                             });                                   
                                             //return successWithData(res, 'Data Submitted Successfully', updateRoleInfo)
@@ -378,7 +387,14 @@ module.exports = {
                                     if (err) {
                                         return errorResponse(res, 'Error')
                                     } else {
-                                        return success(res,"Offer successfully sent")
+                                        tripDB.findByIdAndUpdate({_id : rider_trip_id},{status: 1}, (err,updateRiderStatus)=>{
+                                            console.log("updateRiderStatus", updateRiderStatus)
+                                            if(err){
+                                                return errorResponse(res,"network error")
+                                            }else{ 
+                                                return success(res,"Offer successfully sent")
+                                            }
+                                         });
                                     }
                                 });
                                                     
@@ -474,7 +490,7 @@ module.exports = {
                                         if (err) {
                                             return errorResponse(res, 'Error while updating status')
                                         }else{ 
-                                            tripDB.updateOne({ _id: doc[0].rider_trip_id, type: 2 }, {trip_accepted: 1, status: 3}, async(err, updateRiderStatus) => { 
+                                            tripDB.updateOne({ _id: doc[0].rider_trip_id, type: 2 }, {status: 3}, async(err, updateRiderStatus) => { 
                                                 if (err) {
                                                     return errorResponse(res, 'Error while updating status')
                                                 }else{ 
@@ -554,6 +570,32 @@ module.exports = {
             }
         },
 
+         //---------------- cancel driver offer
+
+         cancelDriverOffer: async function(req,res){
+            try{
+                const profile_id = await req.user.id;
+                if (profile_id) {
+                  const {rider_trip_id, driver_id} = req.body;
+
+                  if(rider_trip_id == null || rider_trip_id == "" || rider_trip_id == undefined && driver_id == null || driver_id == "" || driver_id == undefined){
+                    return errorResponse(res,"rider_trip_id or driver_id is required")
+                  }else{
+                    tripOfferDB.findOneAndUpdate({rider_trip_id : rider_trip_id, driver_id : driver_id}, {is_trip_accepted_by_rider: 2, status: 2},async(err,doc)=>{
+                        if(err){
+                            return errorResponse(res," Error While updating status")
+                        }else{
+                            return success(res,"Offer Rejected!");
+                        }
+                    })
+                  }
+                }
+               
+            }catch(err){
+                console.log(err);
+            }
+        },
+
         //----------------------------- new offer request by driver
         getNewRequest: async function(req,res){
             try{
@@ -627,7 +669,63 @@ module.exports = {
             }
         },
 
-        
+         //---------------- rate driver after ride completion
+
+         rateDriver: async function(req,res){
+            try{
+                const profile_id = await req.user.id;
+                if (profile_id) {    
+                    console.log("profile_id", profile_id)
+                    const {rider_trip_id, driver_id, rating, issue} = req.body;
+                    if(!(rider_trip_id && driver_id && rating && issue )){
+                        return validationError(res, "rider_trip_id, driver_id,rating and issue  is required")
+                    }else{
+                        riderRatingDB.findOne({driver_id: driver_id, ride_id: rider_trip_id},async(err,doc)=>{
+                            if (err) {
+                                return errorResponse(res, 'Error')
+                            } else { 
+                                if(doc){
+                                    return errorResponse(res,"Rating already submitted")
+                                }else{
+                                   
+                                    let issue_desc;
+
+                                    if(issue == "other"){
+                                        issue_desc = req.body.issue_desc;
+                                    }else{
+                                        issue_desc = ""
+                                    }
+                                    let driver_rating = new riderRatingDB();
+                    
+                                    driver_rating.driver_id = driver_id;
+                                    driver_rating.ride_id = rider_trip_id;
+                                    driver_rating.rating = rating; 
+                                    driver_rating.issue = issue;   
+                                    driver_rating.issue_desc = issue_desc;                                                    
+                                    driver_rating.created_date = Date.now();                                        
+                                    
+                                    console.log("driver_rating",driver_rating)
+                                await driver_rating.save(async (err, ratingdoc) => {
+                                        if (err) {
+                                            return errorResponse(res, 'Error')
+                                        } else { 
+                                            return success(res,"rating submitted")
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                       
+                    }             
+                                          
+                    
+                  }
+                
+               
+            }catch(err){
+                console.log(err);
+            }
+        },
 
 
 

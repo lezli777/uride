@@ -5,7 +5,7 @@ const signupDB = require('../../../models/signup.model.js')
  const tripDB = require('../../../models/usersTrip.model.js');
  const tripOfferDB = require('../../../models/tripOffer.model.js');
 const profileDB = require('../../../models/profile.model.js');
-// const roleDB = require('../../models/memberRole.model.js');
+ const driverRatingDB = require('../../../models/driverRating.model.js');
 const verifyToken = require("../../../middleware/authentication.js");
 const {
     success,
@@ -470,11 +470,16 @@ module.exports = {
                         if(err){
                             return errorResponse(res," Error While updating status")
                         }else{  
-                            console.log("doc", doc);                         
-                                if(doc){
-                                  return success(res,"Rider Offer Accepted")
-                                }                    
-                           
+                            if(doc){
+                                tripDB.findOneAndUpdate({_id : doc.rider_trip_id, user_id : rider_id}, {trip_accepted: 1},async(err,updateRiderTripStatus)=>{
+                                    if(err){
+                                        return errorResponse(res," Error While updating status")
+                                    }else{ 
+                                        return success(res,"Rider Offer Accepted By Driver") 
+                                     }
+                                });
+                            }                         
+                                                   
                         }
                     })
                   }
@@ -727,6 +732,120 @@ module.exports = {
                         }
                         
                   
+                    
+                  }
+                
+               
+            }catch(err){
+                console.log(err);
+            }
+        },
+
+
+        
+         //---------------- finish ride
+         finishRide: async function(req,res){
+            try{
+                const profile_id = await req.user.id;
+                if (profile_id) {    
+                    const {driver_trip_id} = req.body;
+                    if(!(driver_trip_id)){
+                        return validationError(res, "driver_trip_id is required")
+                    }else{
+                        tripDB.findByIdAndUpdate({_id : driver_trip_id},{status : 6},(err,doc)=>{
+                            if(err){
+                                return errorResponse(res," Error While finding data")
+                            }else{
+                                tripOfferDB.find({driver_trip_id: driver_trip_id, status: 1}, async(err,getRiders)=>{
+                                    if(err){
+                                        return errorResponse(res," Error While finding data")
+                                    }else{
+                                        if(getRiders.length > 0){
+                                            await Promise.all(getRiders.map(async (row) => {
+                                                console.log('row',row)        
+                                                    await tripDB.findByIdAndUpdate({_id : row.rider_trip_id},{status:6});
+                                                    
+                                            }));  
+                                            
+                                            tripOfferDB.updateMany({driver_trip_id: driver_trip_id, status: 1},{status: 4}, (err,updateFinalStatus)=>{
+                                                if(err){
+                                                    return errorResponse(res," Error While finding data")
+                                                }else{
+                                                    console.log("updateFinalStatus", updateFinalStatus);
+                                                    tripOfferDB.deleteMany({driver_trip_id: driver_trip_id, status: 0}, (err,deleteRemaining)=>{
+                                                        if(err){
+                                                            return errorResponse(res," Error While finding data")
+                                                        }else{
+                                                            return success(res,"Trip Completed")
+                                                        }
+                                                     }) 
+                                                }
+                                            })
+            
+                                        }
+                                    }
+                                })
+                                
+                            }
+                        })  
+                    }             
+                                          
+                    
+                  }
+                
+               
+            }catch(err){
+                console.log(err);
+            }
+        },
+
+          //---------------- rate riders after trip completion
+
+          rateRiders: async function(req,res){
+            try{
+                const profile_id = await req.user.id;
+                if (profile_id) {    
+                    const {driver_trip_id, rider_id,rating, issue} = req.body;
+                    if(!(driver_trip_id && rider_id && rating && issue )){
+                        return validationError(res, "driver_trip_id, rider_id, rating and issue  is required")
+                    }else{
+                        driverRatingDB.findOne({rider_id: rider_id, trip_id: driver_trip_id},async(err,doc)=>{
+                            if (err) {
+                                return errorResponse(res, 'Error')
+                            } else { 
+                                if(doc){
+                                    return errorResponse(res,"Rating already submitted")
+                                }else{
+                                    let issue_desc;
+
+                                    if(issue == "other"){
+                                        issue_desc = req.body.issue_desc;
+                                    }else{
+                                        issue_desc = ""
+                                    }
+                                    let rider_rating = new driverRatingDB();
+                    
+                                    rider_rating.rider_id = rider_id;
+                                    rider_rating.trip_id = driver_trip_id;
+                                    rider_rating.rating = rating;  
+                                    rider_rating.issue = issue;   
+                                    rider_rating.issue_desc = issue_desc;                                                    
+                                    rider_rating.created_date = Date.now();                                        
+                                    
+                                    
+                                await rider_rating.save(async (err, ratingdoc) => {
+                                        if (err) {
+                                            return errorResponse(res, 'Error')
+                                        } else { 
+                                            return success(res,"rating submitted")
+                                        }
+                                    });
+                                }
+                            }
+                        })
+                       
+                    }             
+                                          
                     
                   }
                 

@@ -12,7 +12,8 @@ router.get('/getActiveDrivers', riderController.verifyToken, riderController.get
 router.get('/getNewRequest', riderController.verifyToken, riderController.getNewRequest);  
 router.get('/getDetailToConfirmRide', riderController.verifyToken, riderController.getDriverDetailToConfirmRide);
 router.get('/getAllRideWithOfferStatus', riderController.verifyToken, riderController.getAllRideWithStatus);
-
+router.post('/cancelDriverOffer', riderController.verifyToken, riderController.cancelDriverOffer);
+router.post('/rateDriver', riderController.verifyToken, riderController.rateDriver);
 
 
 // driver controller routes
@@ -29,6 +30,9 @@ router.get('/getRiderTripDetails', driverController.verifyToken, driverControlle
 router.get('/getNewRequestInArea', driverController.verifyToken, driverController.getNewRiderRequestInArea);
 router.get('/getRideTotalDistance', driverController.verifyToken, driverController.getRideTotalDistance);
 router.post('/startTrip', driverController.verifyToken, driverController.startTrip);
+router.post('/finishRide', driverController.verifyToken, driverController.finishRide);
+router.post('/rateRiders', driverController.verifyToken, driverController.rateRiders);
+
 
 
 
