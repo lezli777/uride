@@ -9,6 +9,8 @@ const backgroundcheckSchema = mongoose.Schema({
     zip_code: { type: String },
     dob: { type: String },
     ssn: { type: String },
-    status: { type: Number }
+    status: { type: Number },
+    type: { type: Number },
+    created_date: { type: Date },
 })
 module.exports = mongoose.model('backgroundchecks', backgroundcheckSchema);

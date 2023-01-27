@@ -7,6 +7,8 @@ const vehicleInfoSchema = mongoose.Schema({
     upload_vehicle_registration: { type: String },
     upload_inssurance_card: { type: String },
     upload_driver_licence: { type: String },
-    status: { type: Number }
+    status: { type: Number },
+    type: { type: Number },
+    created_date: { type: Date },
 })
 module.exports = mongoose.model('vehicleInfos', vehicleInfoSchema);

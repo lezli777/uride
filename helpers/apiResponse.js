@@ -35,3 +35,12 @@ exports.validationError = (res, message) => {
     }
     return res.json(resdata)
 }
+
+exports.notFound = (res, message) => {
+    const resdata = {
+        code: 501,
+        status: false,
+        message
+    }
+    return res.json(resdata);
+}

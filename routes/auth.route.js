@@ -7,7 +7,8 @@ router.post('/validateEmail', authController.validateEmail);
 router.post('/validateUsername', authController.validateUsername);
 router.post('/verifyEmail', authController.verifyEmail);
 router.post('/getStatus', authController.checkEmailVerificationStatus);
-
+router.post('/createRole', authController.createRole);
 router.post('/signupdemo', authController.signupdemo);
+router.post('/refresh', authController.refreshTokenUser);
 
 module.exports = router;

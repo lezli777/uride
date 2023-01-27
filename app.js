@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const authRouter = require('./routes/auth.route')
 const commonRouter = require('./routes/common.route')
+const userRouter = require('./routes/user.route')
 
 // create express app
 const app = express();
@@ -48,6 +49,7 @@ const port = 3000;
 
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/common', commonRouter);
+app.use('/api/v1/user', userRouter);
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}!`)
