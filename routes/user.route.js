@@ -3,6 +3,7 @@ const router = express.Router();
 const riderController = require('../controller/user/rider/riderController.js')
 const driverController = require('../controller/user/driver/driverController.js')
 
+
 // rider controller routes
 router.get('/findDrivers', riderController.verifyToken, riderController.findDrivers);
 router.get('/getDriverDetails', riderController.verifyToken, riderController.getDriverDetailsByID);
@@ -14,6 +15,8 @@ router.get('/getDetailToConfirmRide', riderController.verifyToken, riderControll
 router.get('/getAllRideWithOfferStatus', riderController.verifyToken, riderController.getAllRideWithStatus);
 router.post('/cancelDriverOffer', riderController.verifyToken, riderController.cancelDriverOffer);
 router.post('/rateDriver', riderController.verifyToken, riderController.rateDriver);
+router.post('/pushNotifications', riderController.pushNotifications);
+
 
 
 // driver controller routes
@@ -33,6 +36,8 @@ router.post('/startTrip', driverController.verifyToken, driverController.startTr
 router.post('/finishRide', driverController.verifyToken, driverController.finishRide);
 router.post('/rateRiders', driverController.verifyToken, driverController.rateRiders);
 
+
+//router.post('/payment', paymentController.payment);
 
 
 

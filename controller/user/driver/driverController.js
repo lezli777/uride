@@ -1,6 +1,6 @@
 const signupDB = require('../../../models/signup.model.js')
 // const backgroudCheckDB = require('../../models/background.model.js')
-// const vehicleInfosDB = require('../../models/vehicleInfo.model.js');
+ const vehicleInfosDB = require('../../../models/vehicleInfo.model.js');
 // const paymentMethodDB = require('../../models/paymentMethod.model.js');
  const tripDB = require('../../../models/usersTrip.model.js');
  const tripOfferDB = require('../../../models/tripOffer.model.js');
@@ -30,16 +30,16 @@ module.exports = {
                         return validationError(res,"driver_trip_id is required")
                     }else{
                         const findtrip = await tripDB.findById({_id : driver_trip_id});
-                        console.log("findtrip", findtrip)
+                        //console.log("findtrip", findtrip)
                         if(findtrip){
                            tripDB.findByIdAndUpdate({_id : driver_trip_id},{status: 4}, (err,doc)=>{
-                            console.log("doc", doc)
+                            //console.log("doc", doc)
                             if(err){
                                 return errorResponse(res,"network error")
                             }else{
                                 
                                     tripOfferDB.deleteMany({driver_trip_id : ObjectId(driver_trip_id) },(err,doc1)=>{
-                                        console.log("doc1", doc1)
+                                        //console.log("doc1", doc1)
                                         if(err){
                                             return errorResponse(res,"Issue While deleting trips")
                                         }else{
@@ -69,7 +69,7 @@ module.exports = {
                 if (profile_id) {
                     const newday = new Date();                        
                     var today = new Date(newday).toISOString().split('T')[0]+'T00:00:00.000Z';
-                    console.log("today", today);
+                    //console.log("today", today);
                     var arr = [];
                         var data = await tripDB.aggregate([
                             {$match: {
@@ -132,27 +132,25 @@ module.exports = {
                                 as: "findUpcomingtrips"
                                 },
                               
-
-                              
                              },
                            
                         ])
                         await Promise.all(data.map(async (row) => {
-                            console.log('row',row)
+                            //console.log('row',row)
 
                             if(row.findUpcomingtrips.length > 0 ){
-                            console.log('row',row.findUpcomingtrips)
+                           // console.log('row',row.findUpcomingtrips)
                             await Promise.all(row.findUpcomingtrips.map(async (row1) => {
 
                                 const findtrip = await profileDB.findOne({profile_id : row1.rider_id});
-                                console.log('findtrip',findtrip)
+                                //console.log('findtrip',findtrip)
     
                                 row1.fullname = findtrip.fullname;
                                 row1.gender = findtrip.gender;
                                
                             }))
                             }
-                       
+                        
                             arr.push(row);
 
                         }));
@@ -465,7 +463,7 @@ module.exports = {
                   if(!(driver_trip_id && rider_id)){
                     return errorResponse(res,"driver_trip_id or rider_id is required")
                   }else{
-                    console.log("")
+                    //console.log("")
                     tripOfferDB.findOneAndUpdate({driver_trip_id : driver_trip_id, rider_id : rider_id}, {is_trip_accepted_by_driver: 1},async(err,doc)=>{
                         if(err){
                             return errorResponse(res," Error While updating status")
@@ -565,7 +563,7 @@ module.exports = {
                             if(err){
                                 return errorResponse(res," Error While finding data")
                             }else{
-                                console.log("doc",doc)
+                                //console.log("doc",doc)
                                 if(doc.length > 0){
                                     const data ={
                                         active_riders : doc.length
@@ -607,6 +605,7 @@ module.exports = {
                                    if(doc){
                                     var arr = [];
                                     var newarr =[];
+                                    var finalarr = [];
                                     var data = await tripDB.aggregate([
                                         {$match: {
                                             $and: [ 
@@ -666,14 +665,14 @@ module.exports = {
                                     
                                     ])
                                     await Promise.all(data.map(async (row) => {
-                                        console.log('row',row)
+                                        //console.log('row',row)
 
                                         if(row.findRiderInfo.length > 0 ){
-                                        console.log('row',row.findRiderInfo)
+                                        //console.log('row',row.findRiderInfo)
                                         await Promise.all(row.findRiderInfo.map(async (row1) => {
 
                                             const findtrip = await profileDB.findOne({profile_id : row1.rider_id});
-                                            console.log('findtrip',findtrip)
+                                            //console.log('findtrip',findtrip)
 
                                             row1.rider_fullname = findtrip.fullname;
                                             row1.rider_gender = findtrip.gender;
@@ -691,14 +690,14 @@ module.exports = {
                                     }));
 
                                     await Promise.all(arr.map(async (row) => {
-                                        console.log('row',row)
+                                        //console.log('row',row)
 
                                         if(row.findRiderInfo.length > 0 ){
-                                        console.log('row',row.findRiderInfo)
+                                        //console.log('row',row.findRiderInfo)
                                         await Promise.all(row.findRiderInfo.map(async (row1) => {
 
                                             const findtrip1 = await tripDB.findOne({_id : row1.driver_trip_id});
-                                            console.log('findtrip1',findtrip1)
+                                            //console.log('findtrip1',findtrip1)
 
                                             row1.rider_pickup_location = findtrip1.pickup_location;
                                             row1.riderpickup_lat = findtrip1.pickup_lat;
@@ -719,9 +718,29 @@ module.exports = {
                                         
 
                                     }));
+
+                                    await Promise.all(newarr.map(async (row) => {
+                                        //console.log('row',row)
+
+                                        if(row.findRiderInfo.length > 0 ){
+                                        //console.log('row',row.findRiderInfo)
+                                        await Promise.all(row.findRiderInfo.map(async (row1) => {
+
+                                            const findtripwithveichle = await vehicleInfosDB.findOne({driver_id : row1.driver_id});
+                                            //console.log('findtrip1',findtrip1)
+
+                                            row1.vehicle_make = findtripwithveichle.make;
+                                            row1.vehicle_model = findtripwithveichle.model;                                           
+                                        }))
+                                        }
+                                
+                                        finalarr.push(row);
+                                        
+
+                                    }));
                                     
                                    // console.log("userinfo", arr)
-                                    return successWithData(res, 'Details found Successfully', newarr);
+                                    return successWithData(res, 'Details found Successfully', finalarr);
                   
                                    }
                                        
@@ -762,7 +781,7 @@ module.exports = {
                                     }else{
                                         if(getRiders.length > 0){
                                             await Promise.all(getRiders.map(async (row) => {
-                                                console.log('row',row)        
+                                                //console.log('row',row)        
                                                     await tripDB.findByIdAndUpdate({_id : row.rider_trip_id},{status:6});
                                                     
                                             }));  
@@ -771,7 +790,7 @@ module.exports = {
                                                 if(err){
                                                     return errorResponse(res," Error While finding data")
                                                 }else{
-                                                    console.log("updateFinalStatus", updateFinalStatus);
+                                                    //console.log("updateFinalStatus", updateFinalStatus);
                                                     tripOfferDB.deleteMany({driver_trip_id: driver_trip_id, status: 0}, (err,deleteRemaining)=>{
                                                         if(err){
                                                             return errorResponse(res," Error While finding data")

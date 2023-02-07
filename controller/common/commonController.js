@@ -290,20 +290,20 @@ module.exports = {
                 }
 
                 const finded = await signupDB.findOne({ _id: profile_id }).lean();
-                console.log("finded", finded)
+                //console.log("finded", finded)
                 if (finded) {
                     const findProfile = await profileDB.findOne({ profile_id: profile_id, type: type }).lean();
-                    console.log("findProfile", findProfile)
+                    //console.log("findProfile", findProfile)
                     if (findProfile) {
                         //return errorResponse(res, "User already exist with this type");
                          //-------------------------------------------
                          console.log("type", type)
                          switch (type) {
                              case '1':
-                                 console.log("1")
-                                 console.log(req.files.upload_vehicle_registration[0].filename );
-                                 console.log(req.files.upload_inssurance_card[0].filename);
-                                 console.log(req.files.upload_driver_licence[0].filename);
+                                //  console.log("1")
+                                //  console.log(req.files.upload_vehicle_registration[0].filename );
+                                //  console.log(req.files.upload_inssurance_card[0].filename);
+                                //  console.log(req.files.upload_driver_licence[0].filename);
                                  
                                  if (!(fullname && university_name && car_model && student_id && university_address && mobile_no && student_university_email && gender && destination_contact_number && type && gender_preferences && rider_preference && phone_code && phone_no && make && model && year && req.files.upload_vehicle_registration[0].filename && req.files.upload_inssurance_card[0].filename && req.files.upload_driver_licence[0].filename
                                  )) {
@@ -471,13 +471,13 @@ module.exports = {
                      
                     } else {
                         if(findProfile == null){
-                            console.log("type", type)
+                            //console.log("type", type)
                             switch (type) {
                                 case '1':
-                                    console.log("1")
-                                    console.log(req.files.upload_vehicle_registration[0].filename );
-                                    console.log(req.files.upload_inssurance_card[0].filename);
-                                    console.log(req.files.upload_driver_licence[0].filename);
+                                    // console.log("1")
+                                    // console.log(req.files.upload_vehicle_registration[0].filename );
+                                    // console.log(req.files.upload_inssurance_card[0].filename);
+                                    // console.log(req.files.upload_driver_licence[0].filename);
                                     
                                     if (!(fullname && university_name && car_model && student_id && university_address && mobile_no && student_university_email && gender && destination_contact_number && type && gender_preferences && rider_preference && phone_code && phone_no && make && model && year && req.files.upload_vehicle_registration[0].filename && req.files.upload_inssurance_card[0].filename && req.files.upload_driver_licence[0].filename
                                     )) {
@@ -570,7 +570,7 @@ module.exports = {
                                                                                                             //return success(res, 'Data Submitted Successfully')
                                                                                                             if (vehicleCheckDoc) {
                                                                                                                 const findCountOfProfile = await profileDB.find({ profile_id: profile_id }).lean();
-                                                                                                                console.log("findCountOfProfile", findCountOfProfile.length)
+                                                                                                                //console.log("findCountOfProfile", findCountOfProfile.length)
                                                                                                                 if(findCountOfProfile.length == 2){
                                                                                                                     var newvalues = {
                                                                                                                         $set: {
@@ -663,7 +663,7 @@ module.exports = {
                                                     if(basicInfo){
                                                        
                                                             const findCountOfProfile = await profileDB.find({ profile_id: profile_id }).lean();
-                                                            console.log("findCountOfProfile", findCountOfProfile)
+                                                            //console.log("findCountOfProfile", findCountOfProfile)
                                                             if(findCountOfProfile.length == 2){
                                                                 var newvalues = {
                                                                     $set: {
@@ -866,9 +866,9 @@ module.exports = {
         addVehicles: async function (req, res) { 
             
                 csvtojson().fromFile("demo.csv").then(csvData => {
-                    console.log(csvData);
+                    //console.log(csvData);
                     signupDB.insertMany(csvData).then(function () {
-                        console.log("success");
+                        //console.log("success");
                         return success(res,"Csv data inserted successfully")
                     }).catch(function (err){
                         console.log(err)
@@ -881,7 +881,7 @@ module.exports = {
             try {
                 const profile_id = await req.user.id;
                 if (profile_id) {
-                    console.log(profile_id)
+                    //console.log(profile_id)
 
                     if (req.body.type == '' || req.body.type == null || req.body.type == undefined) {
                         return validationError(res, 'type Field is required')
@@ -931,186 +931,272 @@ module.exports = {
                                     var responseMessage = emptyArry + ". " + "Data can't be empty.    ";
                                     if (emptyArry != '') {
                                         return validationError(res, responseMessage);
-                                    }
-
-                                    var returnDateTime;
-                                    //var returnTime;
-                                    if (req.body.trip == 'rounded') {
-                                        console.log('roundddd', req.body.special_request)
-                                        if ((!(req.body.return_date_time == '' || req.body.return_date_time == undefined))) {
-                                            returnDateTime = new Date(req.body.return_date_time);
-                                            //returnTime = req.body.return_time;
-                                        } else {
-                                            return validationError(res, "return_date_time field are required")
-                                        }
-                                    } else {
-                                        returnDateTime = "0000-01-01T00:00:00.000Z";
-                                        //returnTime = "NA";
-                                    }
-
-                                    if (returnDateTime) {
-                                        console.log("returnDateTime", returnDateTime)
-                                        let userTrip = await new tripDB();
-
-                                        userTrip.user_id = profile_id,
-                                        userTrip.type = req.body.type,
-                                        userTrip.actionType = req.body.actionType,
-                                        userTrip.pickup_location = req.body.pickup_location;
-                                        userTrip.pickup_lat = req.body.pickup_lat;
-                                        userTrip.pickup_long = req.body.pickup_long;
-                                        userTrip.destination_location = req.body.destination_location;
-                                        userTrip.destination_lat = req.body.destination_lat;
-                                        userTrip.destination_long = req.body.destination_long;
-                                        userTrip.trip_distance = req.body.trip_distance;
-                                        userTrip.trip = req.body.trip;
-                                        userTrip.depart_date_time = req.body.depart_date_time;
-                                        //userTrip.depart_time = req.body.depart_time;
-                                        userTrip.return_date_time = returnDateTime;
-                                        //userTrip.return_time = returnTime;
-                                        userTrip.amount = req.body.amount;
-                                        userTrip.payment = "";
-                                        userTrip.request_expiration = "";
-                                        userTrip.number_of_riders = req.body.number_of_riders;
-                                        userTrip.number_of_bags = req.body.number_of_bags;
-                                        userTrip.special_request = req.body.special_request;
-                                        userTrip.status = 0;                                        
-                                        userTrip.trip_accepted = 0 ;
-                                        userTrip.seat_left_need = req.body.number_of_riders;
-                                        userTrip.is_trip_full = 0;
-                                        userTrip.received_offer = 0;
-                                        userTrip.created_date = Date.now(); 
-                                        userTrip.updated_date = Date.now();    
-                                        console.log("userTrip", userTrip)
-
-                                        await userTrip.save((err, tripDoc) => {
-                                            if (err) {
-                                                console.log("err",err)
-                                                return errorResponse(res, 'Issue while submitting data')
-                                                //return err;
+                                    }else{
+                                        var returnDateTime;
+                                        //var returnTime;
+                                        if (req.body.trip == 'rounded') {
+                                            //console.log('roundddd', req.body.special_request)
+                                            if ((!(req.body.return_date_time == '' || req.body.return_date_time == undefined))) {
+                                                returnDateTime = new Date(req.body.return_date_time);
+                                                //returnTime = req.body.return_time;
                                             } else {
-                                                if(tripDoc){
-                                                    return success(res, 'Trip Added Successfully');
-                                                }                                                
+                                                return validationError(res, "return_date_time field are required")
                                             }
-
-                                        });
+                                        } else {
+                                            returnDateTime = "0000-01-01T00:00:00.000Z";
+                                            //returnTime = "NA";
+                                        }
+    
+                                        if (returnDateTime) {
+                                            //console.log("returnDateTime", returnDateTime)
+                                            let userTrip = await new tripDB();
+    
+                                            userTrip.user_id = profile_id,
+                                            userTrip.type = req.body.type,
+                                            userTrip.actionType = req.body.actionType,
+                                            userTrip.pickup_location = req.body.pickup_location;
+                                            userTrip.pickup_lat = req.body.pickup_lat;
+                                            userTrip.pickup_long = req.body.pickup_long;
+                                            userTrip.destination_location = req.body.destination_location;
+                                            userTrip.destination_lat = req.body.destination_lat;
+                                            userTrip.destination_long = req.body.destination_long;
+                                            userTrip.trip_distance = req.body.trip_distance;
+                                            userTrip.trip = req.body.trip;
+                                            userTrip.depart_date_time = req.body.depart_date_time;
+                                            //userTrip.depart_time = req.body.depart_time;
+                                            userTrip.return_date_time = returnDateTime;
+                                            //userTrip.return_time = returnTime;
+                                            userTrip.amount = req.body.amount;
+                                            userTrip.payment = "";
+                                            userTrip.request_expiration = "";
+                                            userTrip.number_of_riders = req.body.number_of_riders;
+                                            userTrip.number_of_bags = req.body.number_of_bags;
+                                            userTrip.special_request = req.body.special_request;
+                                            userTrip.status = 0;                                        
+                                            userTrip.trip_accepted = 0 ;
+                                            userTrip.seat_left_need = req.body.number_of_riders;
+                                            userTrip.is_trip_full = 0;
+                                            userTrip.received_offer = 0;
+                                            userTrip.created_date = Date.now(); 
+                                            userTrip.updated_date = Date.now();    
+                                            //console.log("userTrip", userTrip)
+    
+                                            await userTrip.save((err, tripDoc) => {
+                                                if (err) {
+                                                    //console.log("err",err)
+                                                    return errorResponse(res, 'Issue while submitting data')
+                                                    //return err;
+                                                } else {
+                                                    if(tripDoc){
+                                                        return success(res, 'Trip Added Successfully');
+                                                    }                                                
+                                                }
+    
+                                            });
+                                        }
                                     }
-
 
                                     break;
 
                                 case '2':
 
-                                    const requiredParams = [
-                                        'actionType',
-                                        'pickup_location',
-                                        'pickup_lat',
-                                        'pickup_long',
-                                        'destination_location',
-                                        'destination_lat',
-                                        'destination_long',
-                                         'trip_distance',
-                                        'trip',
-                                        'depart_date_time',
-                                        //'depart_time',
-                                        'amount',
-                                        'payment',
-                                        'number_of_riders',
-                                        'number_of_bags',
-                                        'special_request',
-                                        'request_expiration'
-                                    ];
-
-                                    var emptyArry = [];
-                                    var formdata = req.body;
-                                    var data = Object.keys(req.body);
-                                    let excludeField = ['return_date_time'];                                    
-                                    data = data.filter(item => !excludeField.includes(item))
-                                   
-                                    var result = requiredParams.filter(n => !data.includes(n));
-                                    if (result != '') {
-                                        var responseMessageRequired = result + " " + 'fields are required.';
-                                        return validationError(res, responseMessageRequired);
-                                    }
-                                    data.forEach(element => {
-                                        if (formdata[element] == '') {
-                                            emptyArry.push(element);
+                                    if (req.body.actionType == 'ride') {
+                                        const requiredParams = [
+                                            //'actionType',
+                                            'pickup_location',
+                                            'pickup_lat',
+                                            'pickup_long',
+                                            'destination_location',
+                                            'destination_lat',
+                                            'destination_long',
+                                             'trip_distance',
+                                            'trip',
+                                            'depart_date_time',
+                                            //'depart_time',
+                                            'amount',
+                                            'payment',
+                                            'number_of_riders',
+                                            'number_of_bags',
+                                            'special_request',
+                                            'request_expiration'
+                                        ];
+    
+                                        var emptyArry = [];
+                                        var formdata = req.body;
+                                        var data = Object.keys(req.body);
+                                        let excludeField = ['return_date_time'];                                    
+                                        data = data.filter(item => !excludeField.includes(item))
+                                       
+                                        var result = requiredParams.filter(n => !data.includes(n));
+                                        if (result != '') {
+                                            var responseMessageRequired = result + " " + 'fields are required.';
+                                            return validationError(res, responseMessageRequired);
                                         }
-                                    });
-                                    var responseMessage = emptyArry + ". " + "Data can't be empty.    ";
-                                    if (emptyArry != '') {
-                                        return validationError(res, responseMessage);
-                                    }
-
-                                    var returnDateTime;
-                                    //var returnTime;
-                                    var actionType;
-                                    if (req.body.trip == 'rounded') {
-                                        console.log('roundddd', req.body.special_request)
-                                        if ((!(req.body.return_date_time == '' || req.body.return_date_time == undefined)) 
-                                            ) {
-                                            returnDateTime = new Date(req.body.return_date_time);
-                                            //returnTime = req.body.return_time;
-                                        } else {
-                                            return validationError(res, "return_date or return_time fields are required")
+                                        data.forEach(element => {
+                                            if (formdata[element] == '') {
+                                                emptyArry.push(element);
+                                            }
+                                        });
+                                        var responseMessage = emptyArry + ". " + "Data can't be empty.    ";
+                                        if (emptyArry != '') {
+                                            return validationError(res, responseMessage);
+                                        }else{
+                                            var returnDateTime;
+                                            //var returnTime;                                    
+                                            if (req.body.trip == 'rounded') {
+                                                //console.log('roundddd', req.body.special_request)
+                                                if ((!(req.body.return_date_time == '' || req.body.return_date_time == undefined)) 
+                                                    ) {
+                                                    returnDateTime = new Date(req.body.return_date_time);
+                                                    //returnTime = req.body.return_time;
+                                                } else {
+                                                    return validationError(res, "return_date or return_time fields are required")
+                                                }
+                                            } else {
+                                                returnDateTime = "0000-01-01T00:00:00.000Z";
+                                                //returnTime = "NA";
+                                            }
+                                            if(returnDateTime){
+                                                let riderTrip = new tripDB();
+    
+                                                riderTrip.user_id = profile_id,
+                                                riderTrip.type = req.body.type,
+                                                riderTrip.actionType = 'ride',
+                                                riderTrip.pickup_location = req.body.pickup_location;
+                                                riderTrip.pickup_lat = req.body.pickup_lat;
+                                                riderTrip.pickup_long = req.body.pickup_long;
+                                                riderTrip.destination_location = req.body.destination_location;
+                                                riderTrip.destination_lat = req.body.destination_lat;
+                                                riderTrip.destination_long = req.body.destination_long;
+                                                riderTrip.trip_distance = req.body.trip_distance;
+                                                riderTrip.trip = req.body.trip;
+                                                riderTrip.depart_date_time = req.body.depart_date_time;
+                                                //riderTrip.depart_time = req.body.depart_time;
+                                                riderTrip.return_date_time = returnDateTime;
+                                                //riderTrip.return_time = returnTime;
+                                                riderTrip.amount = req.body.amount;
+                                                riderTrip.payment = req.body.payment;
+                                                riderTrip.request_expiration = req.body.request_expiration;
+                                                riderTrip.number_of_riders = req.body.number_of_riders;
+                                                riderTrip.number_of_bags = req.body.number_of_bags;
+                                                riderTrip.special_request = req.body.special_request;                                        
+                                                riderTrip.status = 0;
+                                                riderTrip.trip_accepted = 0 ;
+                                                riderTrip.seat_left_need = req.body.number_of_riders;
+                                                riderTrip.is_trip_full = 0;
+                                                riderTrip.received_offer = 0;
+                                                riderTrip.created_date = Date.now(); 
+                                                riderTrip.updated_date = Date.now(); 
+                                                await riderTrip.save((err, tripDoc) => {
+                                                    if (err) {
+                                                        //console.log("err",err)
+                                                        return errorResponse(res, 'Issue while submitting data')
+                                                    } else {
+                                                        if(tripDoc){
+                                                            return success(res, 'Trip Added Successfully');
+                                                        }
+                                                    
+                                                    }
+            
+                                                }); 
+                                            }  
                                         }
-                                    } else {
-                                        returnDateTime = "0000-01-01T00:00:00.000Z";
-                                        //returnTime = "NA";
-                                    }
-
-                                    if (req.body.actionType == 'ride' ) {
-                                        console.log('actionType', req.body.actionType)                                      
-                                        actionType = req.body.actionType;                           
+    
+                                       
+                                                                  
                                         
                                     } else {
-                                        actionType = req.body.actionType;                                   
+
+                                        const requiredParams = [
+                                            //'actionType',
+                                            'pickup_location',
+                                            'pickup_lat',
+                                            'pickup_long',
+                                            'destination_location',
+                                            'destination_lat',
+                                            'destination_long',
+                                             'trip_distance',
+                                            'trip',
+                                            'depart_date_time',
+                                            //'depart_time',
+                                            'amount',
+                                            'payment',
+                                            //'number_of_riders',
+                                            //'number_of_bags',
+                                            //'special_request',
+                                            //'request_expiration'
+                                        ];
+    
+                                        var emptyArry = [];
+                                        var formdata = req.body;
+                                        var data = Object.keys(req.body);
+                                        //let excludeField = ['return_date_time'];                                    
+                                        //data = data.filter(item => !excludeField.includes(item))
+                                       
+                                        var result = requiredParams.filter(n => !data.includes(n));
+                                        if (result != '') {
+                                            var responseMessageRequired = result + " " + 'fields are required.';
+                                            return validationError(res, responseMessageRequired);
+                                        }
+                                        data.forEach(element => {
+                                            if (formdata[element] == '') {
+                                                emptyArry.push(element);
+                                            }
+                                        });
+                                        var responseMessage = emptyArry + ". " + "Data can't be empty.    ";
+                                        if (emptyArry != '') {
+                                            return validationError(res, responseMessage);
+                                        }else{
+                                            let riderTrip = new tripDB();
+
+                                            riderTrip.user_id = profile_id,
+                                            riderTrip.type = req.body.type,
+                                            riderTrip.actionType = 'delivery',
+                                            riderTrip.pickup_location = req.body.pickup_location;
+                                            riderTrip.pickup_lat = req.body.pickup_lat;
+                                            riderTrip.pickup_long = req.body.pickup_long;
+                                            riderTrip.destination_location = req.body.destination_location;
+                                            riderTrip.destination_lat = req.body.destination_lat;
+                                            riderTrip.destination_long = req.body.destination_long;
+                                            riderTrip.trip_distance = req.body.trip_distance;
+                                            riderTrip.trip = req.body.trip;
+                                            riderTrip.depart_date_time = req.body.depart_date_time;
+                                            //riderTrip.depart_time = req.body.depart_time;
+                                            riderTrip.return_date_time = returnDateTime;
+                                            //riderTrip.return_time = returnTime;
+                                            riderTrip.amount = req.body.amount;
+                                            riderTrip.payment = req.body.payment;
+                                            riderTrip.request_expiration = 0;
+                                            riderTrip.number_of_riders = 0;
+                                            riderTrip.number_of_bags = 0;
+                                            riderTrip.special_request = 'NA';                                        
+                                            riderTrip.status = 0;
+                                            riderTrip.trip_accepted = 0 ;
+                                            riderTrip.seat_left_need = 0;
+                                            riderTrip.is_trip_full = 0;
+                                            riderTrip.received_offer = 0;
+                                            riderTrip.created_date = Date.now(); 
+                                            riderTrip.updated_date = Date.now(); 
+                                            await riderTrip.save((err, tripDoc) => {
+                                                if (err) {
+                                                    //console.log("err",err)
+                                                    return errorResponse(res, 'Issue while submitting data')
+                                                } else {
+                                                    if(tripDoc){
+                                                        return success(res, 'Trip Added Successfully');
+                                                    }
+                                                
+                                                }
+        
+                                            });                             
+                                        }                                       
+
+                                                                   
                                     }
 
-                                    if (actionType) {  
-                                        let riderTrip = new tripDB();
-
-                                        riderTrip.user_id = profile_id,
-                                        riderTrip.type = req.body.type,
-                                        riderTrip.actionType = actionType,
-                                        riderTrip.pickup_location = req.body.pickup_location;
-                                        riderTrip.pickup_lat = req.body.pickup_lat;
-                                        riderTrip.pickup_long = req.body.pickup_long;
-                                        riderTrip.destination_location = req.body.destination_location;
-                                        riderTrip.destination_lat = req.body.destination_lat;
-                                        riderTrip.destination_long = req.body.destination_long;
-                                        riderTrip.trip_distance = req.body.trip_distance;
-                                        riderTrip.trip = req.body.trip;
-                                        riderTrip.depart_date_time = req.body.depart_date_time;
-                                        //riderTrip.depart_time = req.body.depart_time;
-                                        riderTrip.return_date_time = returnDateTime;
-                                        //riderTrip.return_time = returnTime;
-                                        riderTrip.amount = req.body.amount;
-                                        riderTrip.payment = req.body.payment;
-                                        riderTrip.request_expiration = req.body.request_expiration;
-                                        riderTrip.number_of_riders = req.body.number_of_riders;
-                                        riderTrip.number_of_bags = req.body.number_of_bags;
-                                        riderTrip.special_request = req.body.special_request;                                        
-                                        riderTrip.status = 0;
-                                        riderTrip.trip_accepted = 0 ;
-                                        riderTrip.seat_left_need = req.body.number_of_riders;
-                                        riderTrip.is_trip_full = 0;
-                                        riderTrip.received_offer = 0;
-                                        riderTrip.created_date = Date.now(); 
-                                        riderTrip.updated_date = Date.now(); 
-                                        await riderTrip.save((err, tripDoc) => {
-                                            if (err) {
-                                                console.log("err",err)
-                                                return errorResponse(res, 'Issue while submitting data')
-                                            } else {
-                                                if(tripDoc){
-                                                    return success(res, 'Trip Added Successfully');
-                                                }
-                                               
-                                            }
-    
-                                        });
-                                     }
+                                    //if (actionType) {  
+                                        
+                                    // }
 
                                     break;
                             }
@@ -1135,7 +1221,7 @@ module.exports = {
                         return validationError(res, 'type Field is required')
                     } else { 
                         const Trip=await tripDB.find({ user_id : profile_id,type: req.body.type });
-                        console.log("Trip", Trip)
+                        //console.log("Trip", Trip)
                     if(Trip.length > 0){
                         return successWithData(res,'Trip Found',Trip);
                         
@@ -1156,7 +1242,7 @@ module.exports = {
                 const profile_id = await req.user.id;
                 if (profile_id) {
                  const userProfile=await profileDB.find({ profile_id : profile_id }); 
-                 console.log("userProfile", userProfile)
+                 //console.log("userProfile", userProfile)
                  if(userProfile.length > 0){
                     return successWithData(res,"Profile already submitted", userProfile)
                  }else{

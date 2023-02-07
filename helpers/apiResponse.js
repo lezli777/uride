@@ -44,3 +44,23 @@ exports.notFound = (res, message) => {
     }
     return res.json(resdata);
 }
+
+exports.notifySuccess = (response, message) => {
+    const resdata =
+    {
+        code: 200,
+        status: true,
+        message,
+    }
+    return response.json(resdata)
+}
+
+exports.notifyError = (response, message) => {
+    const resdata =
+    {
+        code: 400,
+        status: false,
+        message,
+    }
+    return response.json(resdata)
+}

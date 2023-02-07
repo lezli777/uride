@@ -1,26 +1,63 @@
  const signupDB = require('../../../models/signup.model.js')
-// const backgroudCheckDB = require('../../models/background.model.js')
-// const vehicleInfosDB = require('../../models/vehicleInfo.model.js');
-// const paymentMethodDB = require('../../models/paymentMethod.model.js');
  const tripDB = require('../../../models/usersTrip.model.js');
  const tripOfferDB = require('../../../models/tripOffer.model.js');
  const profileDB = require('../../../models/profile.model.js');
  const riderRatingDB = require('../../../models/riderRating.model.js');
-// const roleDB = require('../../models/memberRole.model.js');
 const verifyToken = require("../../../middleware/authentication.js");
 const {
     success,
     successWithData,
     errorResponse,
-    validationError
+    validationError,
+    notifySuccess,
+    notifyError
 } = require('../../../helpers/apiResponse.js')
 const mongoose = require('mongoose');
 const e = require('cors');
 const ObjectId = mongoose.Types.ObjectId;
+var FCM = require('fcm-node');
+const serverKey = 'AAAA142o9fo:APA91bH9KNp5i9pfreN1_KLInFl0VXcEuh82Mjn07P47sKeE7-kTEy8cKPe7XXZFUEsAYhGvZSMh0j5nML2EHeJEPFzkrclVN0L2bjDWI6K3-CH-hs9-HHd4m4EBSmaNV4dFaUgazZgF';
 
+//var admin =require("firebase-admin");
+//var fcm = require("fcm-notification");
+
+//var serviceAccount = require("../../../config/push-notification-key.json")
+//const certPath = admin.credential(serviceAccount);
+//var FCM = new fcm(certPath);
 module.exports = {
     verifyToken,
-        
+
+    //------------------- push notification
+     pushNotifications: async function(req, res){
+      try{
+        var fcm = new FCM(serverKey);
+        let message = {
+            to:'d9NvTmqwQPGRznmzKFBOST:APA91bFdUPtgFGrpqpWT7FttjgmZah2kJpDkfM67p1WrUUE8kRD9FW80Lis9m1hmWpy1yrtlaP-0qeZEXI7_Da5h1UyYfBYrU-vNnJTYxrKOGHxMdTjm3Zn03mLEZ6EGTbdmfVe0EjyN',
+            notification: {
+                title: "testing notification",
+                body: "Notification message",
+            },
+
+            data: { 
+                title: 'ok',
+                body: '{"name" : "okg ooggle ogrlrl","product_id" : "123","final_price" : "0.00035"}'
+            }
+           
+        };
+
+        console.log("message",message);
+        fcm.send(message, function(err,response){           
+            if(err){                
+                console.log(err);
+            }else{
+                console.log(response);                
+            }
+        })
+      }
+      catch(err){
+        return errorResponse(res,err);
+      }
+     },
 
     //------------------------find drivers 
         findDrivers: async function(req,res){
@@ -57,9 +94,9 @@ module.exports = {
                                             const newday = new Date(req.body.depart_date_time);                         
                                             const makenextday = newday.setDate(newday.getDate() + 1 );
                                             var nextday = new Date(makenextday).toISOString().split('T')[0]+'T00:00:00.000Z';
-                                            console.log("next day", nextday);
+                                            //console.log("next day", nextday);
                                             if(profile_id){
-                                                console.log("profile_id", profile_id)
+                                                //console.log("profile_id", profile_id)
                                                 var data = await profileDB.aggregate(  [
                                                 
                                                     {
@@ -197,7 +234,7 @@ module.exports = {
             try{
                 const profile_id = await req.user.id;
                 if (profile_id) {
-                    console.log("profile_id", profile_id)
+                    //console.log("profile_id", profile_id)
                     var arr = [];
                     var data = await tripDB.aggregate([
                         {$match: {
@@ -266,14 +303,14 @@ module.exports = {
                        
                     ])
                     await Promise.all(data.map(async (row) => {
-                        console.log('row',row)
+                        //console.log('row',row)
 
                         if(row.findRideStatus.length > 0 ){
-                        console.log('row',row.findRideStatus)
+                        //console.log('row',row.findRideStatus)
                         await Promise.all(row.findRideStatus.map(async (row1) => {
 
                             const findtrip = await profileDB.findOne({profile_id : row1.driver_id});
-                            console.log('findtrip',findtrip)
+                            //console.log('findtrip',findtrip)
 
                             row1.drive_fullname = findtrip.fullname;
                             row1.driver_gender = findtrip.gender;
@@ -301,24 +338,24 @@ module.exports = {
                 const profile_id = await req.user.id;
                 if (profile_id) {
                     const {driver_id, rider_trip_id, rider_depart_date_time, rider_amount,rider_seat_request, driver_seat_available, driver_trip_id  } = req.body;
-                    console.log("---",driver_id, rider_trip_id, rider_depart_date_time, rider_amount,rider_seat_request, driver_seat_available, driver_trip_id)
+                    //console.log("---",driver_id, rider_trip_id, rider_depart_date_time, rider_amount,rider_seat_request, driver_seat_available, driver_trip_id)
                     if(!(driver_id && rider_trip_id && rider_depart_date_time &&  rider_amount && rider_seat_request && driver_seat_available && driver_trip_id)){
                         return errorResponse(res,"driver_id, rider_trip_id, rider_depart_date_time, rider_amount,rider_seat_request, driver_seat_available, driver_trip_id are required"); 
                         
                     }else{
                         const findOfferLimitExceed = await tripOfferDB.find({ rider_id : profile_id,rider_trip_id: rider_trip_id});
-                        console.log("findOfferLimitExceed", findOfferLimitExceed.length)
+                        //console.log("findOfferLimitExceed", findOfferLimitExceed.length)
                         if(findOfferLimitExceed.length >= 3){
                             return errorResponse(res, "You can send offer to 3 Drivers")
                         }else{
 
                             const checkTripOffer = await tripOfferDB.findOne({ rider_id : profile_id,driver_trip_id: driver_trip_id, driver_id: driver_id});
-                            console.log("checkTripOffer", checkTripOffer)
+                            //console.log("checkTripOffer", checkTripOffer)
                             if(checkTripOffer){
                                 return errorResponse(res,"This offer is already sent")
                             }else{
                                 const find_driver_trip=await tripDB.findOne({ user_id :driver_id,_id: driver_trip_id,type: 1 });
-                            console.log("find_driver_trip", find_driver_trip)
+                            //console.log("find_driver_trip", find_driver_trip)
                             
                             if(find_driver_trip.trip_accepted == 0){
                                 var newvalues = {
@@ -352,11 +389,53 @@ module.exports = {
                                                     return errorResponse(res, 'Error')
                                                 } else {
                                                     tripDB.findByIdAndUpdate({_id : rider_trip_id},{status: 1}, (err,updateRiderStatus)=>{
-                                                        console.log("updateRiderStatus", updateRiderStatus)
+                                                        //console.log("updateRiderStatus", updateRiderStatus)
                                                         if(err){
                                                             return errorResponse(res,"network error")
                                                         }else{ 
-                                                            return success(res,"Offer successfully sent")
+                                                            //return success(res,"Offer successfully sent")
+                                                            signupDB.findById({_id:profile_id},(err,getDevicedoc)=>{
+                                                                if(err){
+                                                                    return errorResponse(res, 'Error')
+                                                                }else{
+                                                                    if(getDevicedoc){
+                                                                        profileDB.findOne({profile_id:profile_id},(err,getRiderdoc)=>{
+                                                                            if(err){
+                                                                                return errorResponse(res, 'Error')
+                                                                            }else{ 
+                                                                                if(getRiderdoc){
+                                                                                    console.log("------",getRiderdoc.fullname)
+                                                                                    var fcm = new FCM(serverKey);
+                                                                                    let message = {
+                                                                                        to: getDevicedoc.device_token,
+                                                                                        notification: {
+                                                                                            title: "myUride notification",
+                                                                                            body: getRiderdoc.fullname+" send you offer",
+                                                                                        },
+                                                                            
+                                                                                        data: { 
+                                                                                            title: 'ok',
+                                                                                            body: getRiderdoc.fullname+" send you offer"
+                                                                                        }
+                                                                                    
+                                                                                    };
+                                                                            
+                                                                                    console.log("message",message);
+                                                                                    fcm.send(message, function(err,response){           
+                                                                                        if(err){                
+                                                                                            return notifyError(response, 'Error')
+                                                                                        }else{
+                                                                                            return notifySuccess(res, 'Offer successfully sent')
+                                                                                        }
+                                                                                    })
+                                                                                }
+                                                                            }
+                                                                        });
+                                                                        
+                                                                    }
+                                                                }
+                                                            })
+                                                            
                                                         }
                                                      });
                                                     
@@ -388,11 +467,53 @@ module.exports = {
                                         return errorResponse(res, 'Error')
                                     } else {
                                         tripDB.findByIdAndUpdate({_id : rider_trip_id},{status: 1}, (err,updateRiderStatus)=>{
-                                            console.log("updateRiderStatus", updateRiderStatus)
+                                            //console.log("updateRiderStatus", updateRiderStatus)
                                             if(err){
                                                 return errorResponse(res,"network error")
                                             }else{ 
-                                                return success(res,"Offer successfully sent")
+                                                //return success(res,"Offer successfully sent")
+                                                signupDB.findById({_id:profile_id},(err,getDevicedoc)=>{
+                                                    if(err){
+                                                        return errorResponse(res, 'Error')
+                                                    }else{
+                                                        if(getDevicedoc){
+                                                            profileDB.findOne({profile_id:profile_id},(err,getRiderdoc)=>{
+                                                                if(err){
+                                                                    return errorResponse(res, 'Error')
+                                                                }else{ 
+                                                                    if(getRiderdoc){
+                                                                        console.log("------",getDevicedoc)
+                                                                        var fcm = new FCM(serverKey);
+                                                                        let message = {
+                                                                            to: getDevicedoc.device_token,
+                                                                            notification: {
+                                                                                title: "myUride notification",
+                                                                                body: getRiderdoc+" send you offer",
+                                                                            },
+                                                                
+                                                                            data: { 
+                                                                                title: 'ok',
+                                                                                body: checkTripOffer
+                                                                            }
+                                                                        
+                                                                        };
+                                                                
+                                                                        console.log("message",message);
+                                                                        fcm.send(message, function(err,response){           
+                                                                            if(err){                
+                                                                                return notifyError(response, 'Error')
+                                                                            }else{
+                                                                                return notifyError(res, 'Offer successfully sent')
+                                                                            }
+                                                                        })
+                                                                    }
+                                                                }
+                                                            });
+                                                            
+                                                        }
+                                                    }
+                                                })
+                                                
                                             }
                                          });
                                     }
@@ -473,13 +594,13 @@ module.exports = {
                       return errorResponse(res, "driver_trip_id is required")
                     }else{ 
                          tripOfferDB.find({driver_trip_id : driver_trip_id , rider_id: profile_id, status: 0, is_trip_accepted_by_driver: 1},async(err,doc)=>{
-                            console.log("doc", doc)
+                            //console.log("doc", doc)
                             if(err){
                                 return errorResponse(res," Error While finding data")
                             }else{
                                if(doc.length > 0){
                                 var rider_requested_seat =  doc[0].rider_seat_request;
-                                console.log("deducted_seat",rider_requested_seat)
+                                //console.log("deducted_seat",rider_requested_seat)
                                     // var newvalues = {
                                     //     $set: {                                   
                                     //         is_trip_accepted_by_rider: 1,
@@ -497,13 +618,13 @@ module.exports = {
                                                     //console.log("updateTripStatus",updateTripStatus,  doc[0]._id)
                                            
                                                     tripDB.findOne({_id : doc[0].driver_trip_id},async(err,findTripofDriver)=>{
-                                                           console.log("findTripofDriver", findTripofDriver);
+                                                           //console.log("findTripofDriver", findTripofDriver);
                                                            if(err){
                                                                return errorResponse(res," Error While finding data")
                                                            }else{
                                                                if(findTripofDriver.seat_left_need ){
                                                                    var seat_left = Number(findTripofDriver.seat_left_need) - Number(rider_requested_seat); 
-                                                                   console.log("seat_left", seat_left)
+                                                                   //console.log("seat_left", seat_left)
                                                                    if(Number(seat_left) != 0){
                                                                     //    var newvalues = {
                                                                     //        $set: {                                   
@@ -515,7 +636,7 @@ module.exports = {
                                                                            if (err) {
                                                                                return errorResponse(res, 'Error while updating status')
                                                                            }else{ 
-                                                                               console.log("updateSeatStatus", updateSeatStatus);
+                                                                               //console.log("updateSeatStatus", updateSeatStatus);
                                                                                if(updateSeatStatus.modifiedCount === 1){
                                                                                    return successWithData(res, "Trip accepted by rider",updateSeatStatus )
                                                                                }
@@ -534,7 +655,7 @@ module.exports = {
                                                                            if (err) {
                                                                                return errorResponse(res, 'Error while updating status')
                                                                            }else{ 
-                                                                               console.log("updateSeatStatus", updateSeatStatus);
+                                                                               //console.log("updateSeatStatus", updateSeatStatus);
                                                                                if(updateSeatStatus.modifiedCount === 1){
                                                                                    return successWithData(res, "Trip accepted by rider",updateSeatStatus )
                                                                                }
@@ -644,7 +765,7 @@ module.exports = {
                             if(err){
                                 return errorResponse(res," Error While finding data")
                             }else{
-                                console.log("doc",doc)
+                                //console.log("doc",doc)
                                 if(doc.length > 0){
                                     const data ={
                                         active_drivers : doc.length
@@ -675,7 +796,7 @@ module.exports = {
             try{
                 const profile_id = await req.user.id;
                 if (profile_id) {    
-                    console.log("profile_id", profile_id)
+                    //console.log("profile_id", profile_id)
                     const {rider_trip_id, driver_id, rating, issue} = req.body;
                     if(!(rider_trip_id && driver_id && rating && issue )){
                         return validationError(res, "rider_trip_id, driver_id,rating and issue  is required")
@@ -704,7 +825,7 @@ module.exports = {
                                     driver_rating.issue_desc = issue_desc;                                                    
                                     driver_rating.created_date = Date.now();                                        
                                     
-                                    console.log("driver_rating",driver_rating)
+                                    //console.log("driver_rating",driver_rating)
                                 await driver_rating.save(async (err, ratingdoc) => {
                                         if (err) {
                                             return errorResponse(res, 'Error')
@@ -727,8 +848,7 @@ module.exports = {
             }
         },
 
-
-
+        
 
     }
 
