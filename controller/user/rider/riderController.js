@@ -404,7 +404,7 @@ module.exports = {
                                                                                 return errorResponse(res, 'Error')
                                                                             }else{ 
                                                                                 if(getRiderdoc){
-                                                                                    console.log("------",getRiderdoc.fullname)
+                                                                                    console.log("----------",getRiderdoc.fullname)
                                                                                     var fcm = new FCM(serverKey);
                                                                                     let message = {
                                                                                         to: getDevicedoc.device_token,
