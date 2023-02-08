@@ -394,7 +394,7 @@ module.exports = {
                                                             return errorResponse(res,"network error")
                                                         }else{ 
                                                             //return success(res,"Offer successfully sent")
-                                                            signupDB.findById({_id:profile_id},(err,getDevicedoc)=>{
+                                                            signupDB.findById({_id:driver_id},(err,getDevicedoc)=>{
                                                                 if(err){
                                                                     return errorResponse(res, 'Error')
                                                                 }else{
@@ -409,13 +409,13 @@ module.exports = {
                                                                                     let message = {
                                                                                         to: getDevicedoc.device_token,
                                                                                         notification: {
-                                                                                            title: "myUride notification",
-                                                                                            body: getRiderdoc.fullname+" send you offer",
+                                                                                            title: "Ride Offer",
+                                                                                            body: getRiderdoc.fullname+" sent you an offer",
                                                                                         },
                                                                             
                                                                                         data: { 
                                                                                             title: 'ok',
-                                                                                            body: getRiderdoc.fullname+" send you offer"
+                                                                                            body: getRiderdoc.fullname+" sent you an offer"
                                                                                         }
                                                                                     
                                                                                     };
@@ -472,7 +472,7 @@ module.exports = {
                                                 return errorResponse(res,"network error")
                                             }else{ 
                                                 //return success(res,"Offer successfully sent")
-                                                signupDB.findById({_id:profile_id},(err,getDevicedoc)=>{
+                                                signupDB.findById({_id:driver_id},(err,getDevicedoc)=>{
                                                     if(err){
                                                         return errorResponse(res, 'Error')
                                                     }else{
@@ -482,18 +482,18 @@ module.exports = {
                                                                     return errorResponse(res, 'Error')
                                                                 }else{ 
                                                                     if(getRiderdoc){
-                                                                        console.log("------",getDevicedoc)
+                                                                        console.log("--------",getDevicedoc.fullname)
                                                                         var fcm = new FCM(serverKey);
                                                                         let message = {
                                                                             to: getDevicedoc.device_token,
                                                                             notification: {
-                                                                                title: "myUride notification",
-                                                                                body: getRiderdoc+" send you offer",
+                                                                                title: "Ride Offer",
+                                                                                body: getRiderdoc.fullname+" sent you an offer",
                                                                             },
                                                                 
                                                                             data: { 
                                                                                 title: 'ok',
-                                                                                body: checkTripOffer
+                                                                                body: getRiderdoc.fullname+" sent you an offer"
                                                                             }
                                                                         
                                                                         };
@@ -503,7 +503,7 @@ module.exports = {
                                                                             if(err){                
                                                                                 return notifyError(response, 'Error')
                                                                             }else{
-                                                                                return notifyError(res, 'Offer successfully sent')
+                                                                                return notifySuccess(res, 'Offer successfully sent')
                                                                             }
                                                                         })
                                                                     }
@@ -573,6 +573,7 @@ module.exports = {
     
                         ])
                         return successWithData(res, 'Details found Successfully', data);
+                       
                       }
                                           
                   }
@@ -638,7 +639,48 @@ module.exports = {
                                                                            }else{ 
                                                                                //console.log("updateSeatStatus", updateSeatStatus);
                                                                                if(updateSeatStatus.modifiedCount === 1){
-                                                                                   return successWithData(res, "Trip accepted by rider",updateSeatStatus )
+                                                                                   //return successWithData(res, "Trip accepted by rider",updateSeatStatus )
+                                                                                   signupDB.findById({_id:doc[0].driver_id},(err,getDevicedoc)=>{
+                                                                                    if(err){
+                                                                                        return errorResponse(res, 'Error')
+                                                                                    }else{
+                                                                                        if(getDevicedoc){
+                                                                                            profileDB.findOne({profile_id:profile_id},(err,getRiderdoc)=>{
+                                                                                                if(err){
+                                                                                                    return errorResponse(res, 'Error')
+                                                                                                }else{ 
+                                                                                                    if(getRiderdoc){
+                                                                                                        console.log("----------",getRiderdoc.fullname)
+                                                                                                        var fcm = new FCM(serverKey);
+                                                                                                        let message = {
+                                                                                                            to: getDevicedoc.device_token,
+                                                                                                            notification: {
+                                                                                                                title: "Trip Accepted",
+                                                                                                                body: "Trip accepted by "+getRiderdoc.fullname,
+                                                                                                            },
+                                                                                                
+                                                                                                            data: { 
+                                                                                                                title: 'ok',
+                                                                                                                body: "Trip accepted by "+getRiderdoc.fullname
+                                                                                                            }
+                                                                                                        
+                                                                                                        };
+                                                                                                
+                                                                                                        console.log("message",message);
+                                                                                                        fcm.send(message, function(err,response){           
+                                                                                                            if(err){                
+                                                                                                                return notifyError(response, 'Error')
+                                                                                                            }else{
+                                                                                                                return notifySuccess(res, 'Trip accepted by rider')
+                                                                                                            }
+                                                                                                        })
+                                                                                                    }
+                                                                                                }
+                                                                                            });
+                                                                                            
+                                                                                        }
+                                                                                    }
+                                                                                })
                                                                                }
                                                                               
                                                                            }
@@ -657,7 +699,48 @@ module.exports = {
                                                                            }else{ 
                                                                                //console.log("updateSeatStatus", updateSeatStatus);
                                                                                if(updateSeatStatus.modifiedCount === 1){
-                                                                                   return successWithData(res, "Trip accepted by rider",updateSeatStatus )
+                                                                                   //return successWithData(res, "Trip accepted by rider",updateSeatStatus )
+                                                                                   signupDB.findById({_id:doc[0].driver_id},(err,getDevicedoc)=>{
+                                                                                    if(err){
+                                                                                        return errorResponse(res, 'Error')
+                                                                                    }else{
+                                                                                        if(getDevicedoc){
+                                                                                            profileDB.findOne({profile_id:profile_id},(err,getRiderdoc)=>{
+                                                                                                if(err){
+                                                                                                    return errorResponse(res, 'Error')
+                                                                                                }else{ 
+                                                                                                    if(getRiderdoc){
+                                                                                                        console.log("----------",getRiderdoc.fullname)
+                                                                                                        var fcm = new FCM(serverKey);
+                                                                                                        let message = {
+                                                                                                            to: getDevicedoc.device_token,
+                                                                                                            notification: {
+                                                                                                                title: "Trip Accepted",
+                                                                                                                body: "Trip accepted by "+getRiderdoc.fullname,
+                                                                                                            },
+                                                                                                
+                                                                                                            data: { 
+                                                                                                                title: 'ok',
+                                                                                                                body: "Trip accepted by "+getRiderdoc.fullname
+                                                                                                            }
+                                                                                                        
+                                                                                                        };
+                                                                                                
+                                                                                                        console.log("message",message);
+                                                                                                        fcm.send(message, function(err,response){           
+                                                                                                            if(err){                
+                                                                                                                return notifyError(response, 'Error')
+                                                                                                            }else{
+                                                                                                                return notifySuccess(res, 'Trip accepted by rider')
+                                                                                                            }
+                                                                                                        })
+                                                                                                    }
+                                                                                                }
+                                                                                            });
+                                                                                            
+                                                                                        }
+                                                                                    }
+                                                                                })
                                                                                }
                                                                               
                                                                            }
@@ -706,7 +789,48 @@ module.exports = {
                         if(err){
                             return errorResponse(res," Error While updating status")
                         }else{
-                            return success(res,"Offer Rejected!");
+                            //return success(res,"Offer Rejected!");
+                            signupDB.findById({_id:driver_id},(err,getDevicedoc)=>{
+                                if(err){
+                                    return errorResponse(res, 'Error')
+                                }else{
+                                    if(getDevicedoc){
+                                        profileDB.findOne({profile_id:profile_id},(err,getRiderdoc)=>{
+                                            if(err){
+                                                return errorResponse(res, 'Error')
+                                            }else{ 
+                                                if(getRiderdoc){
+                                                    console.log("----------",getRiderdoc.fullname)
+                                                    var fcm = new FCM(serverKey);
+                                                    let message = {
+                                                        to: getDevicedoc.device_token,
+                                                        notification: {
+                                                            title: "Offer Rejected",
+                                                            body: getRiderdoc.fullname+" cancelled the ride",
+                                                        },
+                                            
+                                                        data: { 
+                                                            title: 'ok',
+                                                            body: getRiderdoc.fullname+" cancelled the ride"
+                                                        }
+                                                    
+                                                    };
+                                            
+                                                    console.log("message",message);
+                                                    fcm.send(message, function(err,response){           
+                                                        if(err){                
+                                                            return notifyError(response, 'Error')
+                                                        }else{
+                                                            return notifySuccess(res, 'Offer Rejected!')
+                                                        }
+                                                    })
+                                                }
+                                            }
+                                        });
+                                        
+                                    }
+                                }
+                            })
                         }
                     })
                   }
@@ -830,7 +954,48 @@ module.exports = {
                                         if (err) {
                                             return errorResponse(res, 'Error')
                                         } else { 
-                                            return success(res,"rating submitted")
+                                            //return success(res,"rating submitted")
+                                            signupDB.findById({_id:driver_id},(err,getDevicedoc)=>{
+                                                if(err){
+                                                    return errorResponse(res, 'Error')
+                                                }else{
+                                                    if(getDevicedoc){
+                                                        profileDB.findOne({profile_id:profile_id},(err,getRiderdoc)=>{
+                                                            if(err){
+                                                                return errorResponse(res, 'Error')
+                                                            }else{ 
+                                                                if(getRiderdoc){
+                                                                    console.log("----------",getRiderdoc.fullname)
+                                                                    var fcm = new FCM(serverKey);
+                                                                    let message = {
+                                                                        to: getDevicedoc.device_token,
+                                                                        notification: {
+                                                                            title: "Review Completed",
+                                                                            body: getRiderdoc.fullname+" gave you review.",
+                                                                        },
+                                                            
+                                                                        data: { 
+                                                                            title: 'ok',
+                                                                            body: getRiderdoc.fullname+" gave you review."
+                                                                        }
+                                                                    
+                                                                    };
+                                                            
+                                                                    console.log("message",message);
+                                                                    fcm.send(message, function(err,response){           
+                                                                        if(err){                
+                                                                            return notifyError(response, 'Error')
+                                                                        }else{
+                                                                            return success(res,"rating submitted")
+                                                                        }
+                                                                    })
+                                                                }
+                                                            }
+                                                        });
+                                                        
+                                                    }
+                                                }
+                                            }) 
                                         }
                                     });
                                 }

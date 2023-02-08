@@ -5,6 +5,8 @@ const cors = require('cors');
 const authRouter = require('./routes/auth.route')
 const commonRouter = require('./routes/common.route')
 const userRouter = require('./routes/user.route')
+const path = require('path');
+
 
 // create express app
 const app = express();
@@ -50,6 +52,12 @@ const port = 3000;
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/common', commonRouter);
 app.use('/api/v1/user', userRouter);
+
+
+
+app.get('/confirmPassword', function(req, res) {
+    res.sendFile(path.join(__dirname, '/confirmPassword.html'));
+  });
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}!`)

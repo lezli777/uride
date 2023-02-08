@@ -37,15 +37,73 @@ module.exports = {
                             if(err){
                                 return errorResponse(res,"network error")
                             }else{
-                                
-                                    tripOfferDB.deleteMany({driver_trip_id : ObjectId(driver_trip_id) },(err,doc1)=>{
-                                        //console.log("doc1", doc1)
-                                        if(err){
-                                            return errorResponse(res,"Issue While deleting trips")
-                                        }else{
-                                            return success(res,"Trip is cancelled/deleted")
-                                        }
-                                    })
+                                tripOfferDB.find({driver_trip_id: driver_trip_id, status: 1}, async(err,offerByRiderDoc)=>{
+                                    if(offerByRiderDoc.length > 0){
+                                        await Promise.all(offerByRiderDoc.map(async (row) => {
+                                         await signupDB.findById({_id : row.rider_id}, async(err,getRiderDeviceTokenDoc)=>{
+                                            if(err){
+                                                return errorResponse(res,"issue while finding")
+                                            }else{
+                                                if(getRiderDeviceTokenDoc){
+                                                    profileDB.findOne({profile_id: profile_id}, async(err, getDriverNameDoc)=>{
+                                                        if(err){
+                                                            return errorResponse(res,"issue while finding")
+                                                        }else{
+                                                            if(getDriverNameDoc){
+                                                                console.log("----------",getDriverNameDoc.fullname)
+                                                                tripOfferDB.updateOne({driver_trip_id:row.driver_trip_id},{status: 3},async(err,updateOfferStatus)=>{
+                                                                    if(err){
+                                                                        return errorResponse(res,"issue while updating")  
+                                                                    }else{
+                                                                        var fcm = new FCM(serverKey);
+                                                                        let message = {
+                                                                            to: getRiderDeviceTokenDoc.device_token,
+                                                                            notification: {
+                                                                                title: "Trip Deleted",
+                                                                                body: getDriverNameDoc.fullname+" deleted the trip",
+                                                                            },
+                                                                
+                                                                            data: { 
+                                                                                title: 'ok',
+                                                                                body: getDriverNameDoc.fullname+" deleted the trip"
+                                                                            }
+                                                                        
+                                                                        };
+                                                                
+                                                                        console.log("message",message);
+                                                                        fcm.send(message, function(err,response){           
+                                                                            if(err){                
+                                                                                return notifyError(response, 'Error')
+                                                                            }else{
+                                                                                return notifySuccess(res, 'Trip successfully deleted')
+                                                                            }
+                                                                        })
+                                                                    }
+                                                                })
+                                                                
+                                                            }
+                                                         } 
+                                                    })
+                                                }
+                                            }
+                                        });
+                                                
+                                          
+                    
+                                        }));
+                                    }else{
+                                        return success(res,"Trip is cancelled/deleted")
+                                    }  
+                                })
+                                   
+                                    // tripOfferDB.deleteMany({driver_trip_id : ObjectId(driver_trip_id) },(err,doc1)=>{
+                                    //     //console.log("doc1", doc1)
+                                    //     if(err){
+                                    //         return errorResponse(res,"Issue While deleting trips")
+                                    //     }else{
+                                    //         return success(res,"Trip is cancelled/deleted")
+                                    //     }
+                                    // })
                                     
                                 
                             }
@@ -129,7 +187,7 @@ module.exports = {
                                 ],
 
                                 
-                                as: "findUpcomingtrips"
+                                as: "findOffers"
                                 },
                               
                              },
@@ -473,7 +531,48 @@ module.exports = {
                                     if(err){
                                         return errorResponse(res," Error While updating status")
                                     }else{ 
-                                        return success(res,"Rider Offer Accepted By Driver") 
+                                        //return success(res,"Rider Offer Accepted By Driver") 
+                                        signupDB.findById({_id:doc[0].rider_id},(err,getDevicedoc)=>{
+                                            if(err){
+                                                return errorResponse(res, 'Error')
+                                            }else{
+                                                if(getDevicedoc){
+                                                    profileDB.findOne({profile_id:profile_id},(err,getDriverdoc)=>{
+                                                        if(err){
+                                                            return errorResponse(res, 'Error')
+                                                        }else{ 
+                                                            if(getDriverdoc){
+                                                                console.log("----------",getDriverdoc.fullname)
+                                                                var fcm = new FCM(serverKey);
+                                                                let message = {
+                                                                    to: getDevicedoc.device_token,
+                                                                    notification: {
+                                                                        title: "Offer Accepted",
+                                                                        body: getDriverdoc.fullname+" accepted your offer.",
+                                                                    },
+                                                        
+                                                                    data: { 
+                                                                        title: 'ok',
+                                                                        body: getDriverdoc.fullname+" accepted your offer."
+                                                                    }
+                                                                
+                                                                };
+                                                        
+                                                                console.log("message",message);
+                                                                fcm.send(message, function(err,response){           
+                                                                    if(err){                
+                                                                        return notifyError(response, 'Error')
+                                                                    }else{
+                                                                        return notifySuccess(res, 'Rider Offer Accepted')
+                                                                    }
+                                                                })
+                                                            }
+                                                        }
+                                                    });
+                                                    
+                                                }
+                                            }
+                                        })
                                      }
                                 });
                             }                         
@@ -503,7 +602,48 @@ module.exports = {
                         if(err){
                             return errorResponse(res," Error While updating status")
                         }else{
-                            return success(res,"Offer Rejected!");
+                            //return success(res,"Offer Rejected!");
+                            signupDB.findById({_id:doc[0].rider_id},(err,getDevicedoc)=>{
+                                if(err){
+                                    return errorResponse(res, 'Error')
+                                }else{
+                                    if(getDevicedoc){
+                                        profileDB.findOne({profile_id:profile_id},(err,getDriverdoc)=>{
+                                            if(err){
+                                                return errorResponse(res, 'Error')
+                                            }else{ 
+                                                if(getDriverdoc){
+                                                    console.log("----------",getDriverdoc.fullname)
+                                                    var fcm = new FCM(serverKey);
+                                                    let message = {
+                                                        to: getDevicedoc.device_token,
+                                                        notification: {
+                                                            title: "Offer Accepted",
+                                                            body: getDriverdoc.fullname+" cancelled your offer.",
+                                                        },
+                                            
+                                                        data: { 
+                                                            title: 'ok',
+                                                            body: getDriverdoc.fullname+" cancelled your offer."
+                                                        }
+                                                    
+                                                    };
+                                            
+                                                    console.log("message",message);
+                                                    fcm.send(message, function(err,response){           
+                                                        if(err){                
+                                                            return notifyError(response, 'Error')
+                                                        }else{
+                                                            return notifySuccess(res, 'Rider Offer Cancelled')
+                                                        }
+                                                    })
+                                                }
+                                            }
+                                        });
+                                        
+                                    }
+                                }
+                            })
                         }
                     })
                   }
@@ -740,7 +880,62 @@ module.exports = {
                                     }));
                                     
                                    // console.log("userinfo", arr)
-                                    return successWithData(res, 'Details found Successfully', finalarr);
+                                   // return successWithData(res, 'Details found Successfully', finalarr);
+                                   if(finalarr.length > 0){
+                                    await Promise.all(finalarr.findRiderInfo.map(async (row) => {
+                                        await signupDB.findById({_id : row.rider_id}, async(err,getRiderDeviceTokenDoc)=>{
+                                           if(err){
+                                               return errorResponse(res,"issue while finding")
+                                           }else{
+                                               if(getRiderDeviceTokenDoc){
+                                                   profileDB.findOne({profile_id: profile_id}, async(err, getDriverNameDoc)=>{
+                                                       if(err){
+                                                           return errorResponse(res,"issue while finding")
+                                                       }else{
+                                                           if(getDriverNameDoc){
+                                                               console.log("----------",getDriverNameDoc.fullname)
+                                                               tripOfferDB.updateOne({driver_trip_id:row.driver_trip_id},{status: 3},async(err,updateOfferStatus)=>{
+                                                                   if(err){
+                                                                       return errorResponse(res,"issue while updating")  
+                                                                   }else{
+                                                                       var fcm = new FCM(serverKey);
+                                                                       let message = {
+                                                                           to: getRiderDeviceTokenDoc.device_token,
+                                                                           notification: {
+                                                                               title: "Trip Started",
+                                                                               body: getDriverNameDoc.fullname+" started the trip",
+                                                                           },
+                                                               
+                                                                           data: { 
+                                                                               title: 'ok',
+                                                                               body: getDriverNameDoc.fullname+" started the trip"
+                                                                           }
+                                                                       
+                                                                       };
+                                                               
+                                                                       console.log("message",message);
+                                                                       fcm.send(message, function(err,response){           
+                                                                           if(err){                
+                                                                               return notifyError(response, 'Error')
+                                                                           }else{
+                                                                               return successWithData(res, 'Details found Successfully', finalarr);
+                                                                           }
+                                                                       })
+                                                                   }
+                                                               })
+                                                               
+                                                           }
+                                                        } 
+                                                   })
+                                               }
+                                           }
+                                       });
+                                               
+                                         
+                   
+                                       }));
+                                   }
+                                  
                   
                                    }
                                        
@@ -782,24 +977,78 @@ module.exports = {
                                         if(getRiders.length > 0){
                                             await Promise.all(getRiders.map(async (row) => {
                                                 //console.log('row',row)        
-                                                    await tripDB.findByIdAndUpdate({_id : row.rider_trip_id},{status:6});
+                                                    await tripDB.findByIdAndUpdate({_id : row.rider_trip_id},{status:6});                                                    
+                                                       
+                                                            await signupDB.findById({_id : row.rider_id}, async(err,getRiderDeviceTokenDoc)=>{
+                                                               if(err){
+                                                                   return errorResponse(res,"issue while finding")
+                                                               }else{
+                                                                   if(getRiderDeviceTokenDoc){
+                                                                       profileDB.findOne({profile_id: profile_id}, async(err, getDriverNameDoc)=>{
+                                                                           if(err){
+                                                                               return errorResponse(res,"issue while finding")
+                                                                           }else{
+                                                                               if(getDriverNameDoc){
+                                                                                   console.log("----------",getDriverNameDoc.fullname)
+                                                                                   tripOfferDB.updateOne({driver_trip_id:row.driver_trip_id},{status: 3},async(err,updateOfferStatus)=>{
+                                                                                       if(err){
+                                                                                           return errorResponse(res,"issue while updating")  
+                                                                                       }else{
+                                                                                           var fcm = new FCM(serverKey);
+                                                                                           let message = {
+                                                                                               to: getRiderDeviceTokenDoc.device_token,
+                                                                                               notification: {
+                                                                                                   title: "Trip Completed",
+                                                                                                   body: getDriverNameDoc.fullname+" finished the trip",
+                                                                                               },
+                                                                                   
+                                                                                               data: { 
+                                                                                                   title: 'ok',
+                                                                                                   body: getDriverNameDoc.fullname+" finished the trip"
+                                                                                               }
+                                                                                           
+                                                                                           };
+                                                                                   
+                                                                                           console.log("message",message);
+                                                                                           fcm.send(message, function(err,response){           
+                                                                                               if(err){                
+                                                                                                   return notifyError(response, 'Error')
+                                                                                               }else{
+                                                                                                tripOfferDB.updateMany({driver_trip_id: driver_trip_id, status: 1},{status: 4}, (err,updateFinalStatus)=>{
+                                                                                                    if(err){
+                                                                                                        return errorResponse(res," Error While finding data")
+                                                                                                    }else{
+                                                                                                        //console.log("updateFinalStatus", updateFinalStatus);
+                                                                                                        tripOfferDB.deleteMany({driver_trip_id: driver_trip_id, status: 0}, (err,deleteRemaining)=>{
+                                                                                                            if(err){
+                                                                                                                return errorResponse(res," Error While finding data")
+                                                                                                            }else{
+                                                                                                                return success(res,"Trip Completed")
+                                                    
+                                                                                                            }
+                                                                                                         }) 
+                                                                                                    }
+                                                                                                })
+                                                                                               }
+                                                                                           })
+                                                                                       }
+                                                                                   })
+                                                                                   
+                                                                               }
+                                                                            } 
+                                                                       })
+                                                                   }
+                                                               }
+                                                           });
+                                                                   
+                                                             
+                                       
+                                                          
+                                                      
                                                     
                                             }));  
                                             
-                                            tripOfferDB.updateMany({driver_trip_id: driver_trip_id, status: 1},{status: 4}, (err,updateFinalStatus)=>{
-                                                if(err){
-                                                    return errorResponse(res," Error While finding data")
-                                                }else{
-                                                    //console.log("updateFinalStatus", updateFinalStatus);
-                                                    tripOfferDB.deleteMany({driver_trip_id: driver_trip_id, status: 0}, (err,deleteRemaining)=>{
-                                                        if(err){
-                                                            return errorResponse(res," Error While finding data")
-                                                        }else{
-                                                            return success(res,"Trip Completed")
-                                                        }
-                                                     }) 
-                                                }
-                                            })
+                                            
             
                                         }
                                     }
@@ -855,8 +1104,49 @@ module.exports = {
                                 await rider_rating.save(async (err, ratingdoc) => {
                                         if (err) {
                                             return errorResponse(res, 'Error')
-                                        } else { 
-                                            return success(res,"rating submitted")
+                                        } else {
+                                            signupDB.findById({_id:rider_id},(err,getDevicedoc)=>{
+                                                if(err){
+                                                    return errorResponse(res, 'Error')
+                                                }else{
+                                                    if(getDevicedoc){
+                                                        profileDB.findOne({profile_id:profile_id},(err,getDriverdoc)=>{
+                                                            if(err){
+                                                                return errorResponse(res, 'Error')
+                                                            }else{ 
+                                                                if(getDriverdoc){
+                                                                    console.log("----------",getDriverdoc.fullname)
+                                                                    var fcm = new FCM(serverKey);
+                                                                    let message = {
+                                                                        to: getDevicedoc.device_token,
+                                                                        notification: {
+                                                                            title: "Review Completed",
+                                                                            body: getDriverdoc.fullname+" gave you review.",
+                                                                        },
+                                                            
+                                                                        data: { 
+                                                                            title: 'ok',
+                                                                            body: getDriverdoc.fullname+" gave you review."
+                                                                        }
+                                                                    
+                                                                    };
+                                                            
+                                                                    console.log("message",message);
+                                                                    fcm.send(message, function(err,response){           
+                                                                        if(err){                
+                                                                            return notifyError(response, 'Error')
+                                                                        }else{
+                                                                            return success(res,"rating submitted")
+                                                                        }
+                                                                    })
+                                                                }
+                                                            }
+                                                        });
+                                                        
+                                                    }
+                                                }
+                                            }) 
+                                            //return success(res,"rating submitted")
                                         }
                                     });
                                 }
