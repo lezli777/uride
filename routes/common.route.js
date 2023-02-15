@@ -10,5 +10,8 @@ router.post('/createTrip', commonController.verifyToken, commonController.create
 router.post('/getTrips',commonController.verifyToken,commonController.getAllTrip);
 router.post('/checkProfileStatus',commonController.verifyToken,commonController.checkUserProfileExist);
 router.post('/addCSVFile', commonController.addVehicles);
+router.post('/resetPassword',commonController.verifyToken, commonController.resetPassword);
+router.post('/logout',commonController.verifyToken, commonController.logout);
+
 
 module.exports = router;

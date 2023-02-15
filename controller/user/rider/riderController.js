@@ -942,6 +942,7 @@ module.exports = {
                                     }
                                     let driver_rating = new riderRatingDB();
                     
+                                    driver_rating.rider_id = profile_id;
                                     driver_rating.driver_id = driver_id;
                                     driver_rating.ride_id = rider_trip_id;
                                     driver_rating.rating = rating; 

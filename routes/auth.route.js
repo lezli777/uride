@@ -10,5 +10,6 @@ router.post('/getStatus', authController.checkEmailVerificationStatus);
 router.post('/createRole', authController.createRole);
 router.post('/signupdemo', authController.signupdemo);
 router.post('/refresh', authController.refreshTokenUser);
+router.post('/forgetPassword', authController.forgetPassword);
 
 module.exports = router;

@@ -21,6 +21,7 @@ router.post('/pushNotifications', riderController.pushNotifications);
 
 // driver controller routes
 router.get('/getOffersByTripID', driverController.verifyToken, driverController.getRiderOfferByTripId);
+router.get('/getUpcomingTrips', driverController.verifyToken, driverController.getUpcomingTrips);
 router.post('/deleteTrip', driverController.verifyToken, driverController.deleteTrip);
 router.post('/acceptRiderOffer', driverController.verifyToken, driverController.acceptRiderOffer);
 router.post('/rejectRiderOffer', driverController.verifyToken, driverController.rejectRiderOffer);
@@ -35,6 +36,8 @@ router.get('/getRideTotalDistance', driverController.verifyToken, driverControll
 router.post('/startTrip', driverController.verifyToken, driverController.startTrip);
 router.post('/finishRide', driverController.verifyToken, driverController.finishRide);
 router.post('/rateRiders', driverController.verifyToken, driverController.rateRiders);
+router.get('/getDriverAverageRating', driverController.verifyToken, driverController.getDriverAverageRating);
+
 
 
 //router.post('/payment', paymentController.payment);

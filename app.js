@@ -53,10 +53,10 @@ app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/common', commonRouter);
 app.use('/api/v1/user', userRouter);
 
+app.use("/public", express.static(path.join(__dirname, "public")));
 
-
-app.get('/confirmPassword', function(req, res) {
-    res.sendFile(path.join(__dirname, '/confirmPassword.html'));
+app.get('/resetPassword', function(req, res) {
+    res.sendFile(path.join(__dirname, '/resetPassword.html'));
   });
 
 app.listen(port, () => {

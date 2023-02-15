@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const riderRatingSchema = mongoose.Schema({
+    rider_id: { type: mongoose.Schema.Types.ObjectId, ref: 'signups' },
     driver_id: { type: mongoose.Schema.Types.ObjectId, ref: 'signups' },
     ride_id: { type: mongoose.Schema.Types.ObjectId, ref: 'userTrips' },
     rating: {type : Number},
